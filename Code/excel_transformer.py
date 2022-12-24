@@ -2,20 +2,15 @@ import numpy as np
 import pandas as pd
 import datetime
 
-file = pd.read_excel('KW47_V00.xlsx')
-file.head()
+file = pd.read_excel('Data/KW47_V00.xlsx')
 
 indices = file.iloc[:, [0, 7, 8, 11]].reset_index()
 days = file.iloc[:, 12: 33].reset_index()
 combined = pd.concat([indices, days], axis=1).iloc[2:, :]
 
-pipes = pd.read_excel('Cihazlar - Borular.xlsx')
-
-# pipes.head()
-# combined.head()
+pipes = pd.read_excel('Data/Cihazlar - Borular.xlsx')
 
 combined = combined[combined.iloc[:, 1].notna()]
-
 combined = combined[combined.iloc[:, 2].notna()]
 combined.iloc[:, 2] = combined.iloc[:, 2].astype("str")
 combined = combined[combined.iloc[:, 2].apply(str.isnumeric)]
@@ -34,7 +29,7 @@ shifts = ["1", "2", "3"]
 final_indices = [" ".join([i, j]) for i in week_days for j in shifts]
 initial_indices.extend(final_indices)
 
-combined.columns = initial_indices 
+combined.columns = initial_indices
 combined.set_index("Hat")
 
 combined["Cihaz TTNr"] = combined["Cihaz TTNr"].astype(str)
@@ -44,16 +39,16 @@ combined = combined.merge(pipes, left_on="Cihaz TTNr", right_on="Cihaz", how="in
 combined.drop("Cihaz", axis=1, inplace=True)
 combined.insert(3, 'Boru', combined.pop('Boru'))
 
-combined.copy()
-
 for i in range(combined.shape[0]):
     combined.loc[i, "Pazartesi 1": "Pazar 3"] *= combined.loc[i, "Miktar"]
 
-combined.to_excel("deneme.xlsx")
-    
-yeniexcel = pd.read_excel('deneme.xlsx')
+combined.drop("Miktar", axis=1, inplace=True)
+combined.drop("Toplam Adet", axis=1, inplace=True)
+combined.set_index("Hat", inplace=True)
 
-for bulunmayancihaz in file["MOE1 Üretim Sıralaması"]:
-    if bulunmayancihaz not in yeniexcel["Cihaz TTNr"] :
-        print(bulunmayancihaz," Bulunmuyor")
-    
+try:
+    combined.to_excel("Data/initial.xlsx")
+    print("Success!")
+except:
+    print("Failed!")
+        
