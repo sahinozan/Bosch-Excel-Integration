@@ -4,6 +4,7 @@ import subprocess
 import datetime
 import sys
 
+# check compatibility with Python 3.11
 if sys.version_info.major != 3:
     raise SystemError("!!> Python version must be 3.X.X (preferably, 3.11.X)")
 if sys.version_info.minor != 11:
@@ -19,6 +20,7 @@ if sys.version_info.minor != 11:
     else:
         raise SystemError("!!> Invalid input!")
 
+# check if required packages are installed
 if find_spec('pandas') is None:
     print("\n>>> Installing pandas...\n")
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pandas', '--disable-pip-version-check'])
@@ -28,6 +30,7 @@ if find_spec("openpyxl") is None:
     
 import pandas as pd
 
+# read data source files
 try:
     file = pd.read_excel('../Data/KW47_V00.xlsx')
     pipes = pd.read_excel('../Data/Cihazlar - Borular.xlsx')
@@ -50,7 +53,6 @@ sheet.drop('index', axis=1, inplace=True)
 sheet.reset_index(drop=True, inplace=True)
 
 initial_indices = ["Hat", "Cihaz TTNr", "Cihaz Aile", "Toplam Adet"]
-
 week_days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
 shifts = ["1", "2", "3"]
 
@@ -74,8 +76,13 @@ sheet.drop("Miktar", axis=1, inplace=True)
 sheet.drop("Toplam Adet", axis=1, inplace=True)
 sheet.set_index("Hat", inplace=True)
 
+# write the dataframe to an excel file 
 try:
-    sheet.to_excel("../Data/initial.xlsx")
-    print("\n>>> Successfully converted to excel file!")
+    print(">>> Conversion started...")
+    sheet.to_excel("../Data/source.xlsx")
+    print(">>> Conversion completed succesfully!")
 except PermissionError:
-    print("\n>>> Failed to convert!")
+    print(">>> Conversion failed!")
+finally:
+    print(">>> Terminating...")
+    exit(0)
