@@ -38,6 +38,12 @@ except FileNotFoundError:
     print("File not found!")
     exit(1)
 
+# test code
+shift_date = file.iloc[4:6, 12: 31: 3].copy()
+shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
+shift_date = shift_date.apply(lambda x: f"{x.iloc[1]} - {x.iloc[0]}", axis=0)
+shift_dates = list(shift_date)
+
 indices = file.iloc[:, [0, 7, 8, 11]].reset_index()
 work_days = file.iloc[:, 12: 33].reset_index()
 sheet = pd.concat([indices, work_days], axis=1).iloc[2:, :]
@@ -53,10 +59,8 @@ sheet.drop('index', axis=1, inplace=True)
 sheet.reset_index(drop=True, inplace=True)
 
 initial_indices = ["Hat", "Cihaz TTNr", "Cihaz Aile", "Toplam Adet"]
-week_days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
 shifts = ["1", "2", "3"]
-
-final_indices = [" ".join([i, j]) for i in week_days for j in shifts]
+final_indices = [" - ".join([i, j]) for i in shift_dates for j in shifts]
 initial_indices.extend(final_indices)
 
 sheet = sheet.set_axis(initial_indices, axis=1)
@@ -69,8 +73,7 @@ sheet = sheet.merge(pipes, left_on="Cihaz TTNr", right_on="Cihaz", how="inner")
 sheet.drop("Cihaz", axis=1, inplace=True)
 sheet.insert(3, 'Boru', sheet.pop('Boru'))
 
-for i in range(sheet.shape[0]):
-    sheet.loc[i, "Pazartesi 1": "Pazar 3"] *= sheet.loc[i, "Miktar"]
+sheet.iloc[:, 4:] = sheet.iloc[:, 4:].apply(lambda x: x * sheet.iloc[:, -1], axis=0)
 
 sheet.drop("Miktar", axis=1, inplace=True)
 sheet.drop("Toplam Adet", axis=1, inplace=True)
@@ -78,7 +81,7 @@ sheet.set_index("Hat", inplace=True)
 
 # write the dataframe to an Excel file
 try:
-    print(">>> Conversion started...")
+    print(">>>\n>>> Conversion started...")
     sheet.to_excel("../Data/source.xlsx")
     print(">>> Conversion completed successfully!")
 except PermissionError:
