@@ -1,18 +1,20 @@
-import numpy as np
 import pandas as pd
 import datetime
 
-file = pd.read_excel('Data/KW47_V00.xlsx')
+try:
+    file = pd.read_excel('Data/KW47_V00.xlsx')
+    pipes = pd.read_excel('Data/Cihazlar - Borular.xlsx')
+except FileNotFoundError:
+    print("File not found!")
+    exit(1)
 
 indices = file.iloc[:, [0, 7, 8, 11]].reset_index()
 days = file.iloc[:, 12: 33].reset_index()
 combined = pd.concat([indices, days], axis=1).iloc[2:, :]
 
-pipes = pd.read_excel('Data/Cihazlar - Borular.xlsx')
-
 combined = combined[combined.iloc[:, 1].notna()]
 combined = combined[combined.iloc[:, 2].notna()]
-combined.iloc[:, 2] = combined.iloc[:, 2].astype("str")
+combined.iloc[:, 2] = combined.iloc[:, 2].astype(str)
 combined = combined[combined.iloc[:, 2].apply(str.isnumeric)]
 
 combined = combined[combined.iloc[:, 6].apply(lambda x: (type(x) != datetime.datetime) and (type(x) != str))]
@@ -29,7 +31,7 @@ shifts = ["1", "2", "3"]
 final_indices = [" ".join([i, j]) for i in week_days for j in shifts]
 initial_indices.extend(final_indices)
 
-combined.columns = initial_indices
+combined = combined.set_axis(initial_indices, axis=1)
 combined.set_index("Hat")
 
 combined["Cihaz TTNr"] = combined["Cihaz TTNr"].astype(str)
@@ -49,6 +51,5 @@ combined.set_index("Hat", inplace=True)
 try:
     combined.to_excel("Data/initial.xlsx")
     print("Success!")
-except:
+except PermissionError:
     print("Failed!")
-        
