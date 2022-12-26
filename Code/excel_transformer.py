@@ -76,11 +76,11 @@ sheet.drop("Miktar", axis=1, inplace=True)
 sheet.drop("Toplam Adet", axis=1, inplace=True)
 sheet.set_index("Hat", inplace=True)
 
-# write the dataframe to an excel file 
+# write the dataframe to an Excel file
 try:
     print(">>> Conversion started...")
     sheet.to_excel("../Data/source.xlsx")
-    print(">>> Conversion completed succesfully!")
+    print(">>> Conversion completed successfully!")
 except PermissionError:
     print(">>> Conversion failed!")
 finally:
