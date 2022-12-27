@@ -47,7 +47,11 @@ except FileNotFoundError:
     print("File not found!")
     exit(1)
 
-shift_date = file.iloc[4:6, 12: 31: 3].copy()
+# get the date index range
+date_start_index = file.columns[file.isin(['Pazartesi']).any()][0].split(' ')[1]  # type: ignore
+date_start_index
+
+shift_date = file.iloc[4:6, int(date_start_index): 31: 3].copy()
 shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
 shift_date = shift_date.apply(lambda x: f"{x.iloc[1]} - {x.iloc[0]}", axis=0)
 shift_dates = list(shift_date)
