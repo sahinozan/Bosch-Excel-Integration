@@ -32,9 +32,9 @@ if find_spec("openpyxl") is None:
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl', '--disable-pip-version-check'])
 
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
-from openpyxl.styles import Color, PatternFill, Font, Border
-from openpyxl.styles import colors
+from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder, RowDimension
+from openpyxl.styles import PatternFill, Font
+from openpyxl.styles import Alignment
 import openpyxl
 import pandas as pd
 
@@ -83,7 +83,7 @@ sheet.drop("Cihaz", axis=1, inplace=True)
 sheet.insert(3, 'Boru', sheet.pop('Boru'))
 sheet["Cihaz TTNr"] = sheet["Cihaz TTNr"].astype("int64")
 
-indices = ["Hat", "Cihaz TTNr", "Cihaz Aile", "Toplam Adet"]
+indices = ["Hat", "Cihaz TTNr", "Cihaz Aile", "Boru TTNr"]
 
 df = pd.DataFrame(columns=pd.MultiIndex.from_product([shift_dates, shifts]),
                   index=range(sheet.shape[0]))
@@ -118,8 +118,21 @@ def excel_formatter(file_path: str):
     dim_holder = DimensionHolder(worksheet=ws)
 
     for col in range(ws.min_column, ws.max_column + 1):
-        dim_holder[get_column_letter(col)] = ColumnDimension(ws, min=col, max=col, width=18)
+        dim_holder[get_column_letter(col)] = ColumnDimension(ws, min=col, max=col, width=12)
 
+    # change the height of all rows
+    for row in range(ws.min_row, ws.max_row + 1):
+        ws.row_dimensions[row].height = 20
+
+    # change the size of B, C, and D columns
+    dim_holder['B'] = ColumnDimension(ws, min=2, max=2, width=18)
+    dim_holder['C'] = ColumnDimension(ws, min=3, max=3, width=18)
+    dim_holder['D'] = ColumnDimension(ws, min=4, max=4, width=18)
+
+    # add filter to the first column
+    ws.auto_filter.ref = "A2:D2"
+
+    # highlight the version and date cells
     ws['A1'].fill = redFill
     ws['A1'].font = Font(color = "FFFFFF", bold=True, size=11)
 
@@ -140,7 +153,13 @@ def excel_version(file_path: str):
     ws = wb.active
     ws.cell(row=1, column=1).value = version_value
     ws.cell(row=1, column=2).value = str(update_date_value)   # type: ignore
-    ws.cell(row=2, column=1).value = "Hat" # type: ignore
+    ws.cell(row=2, column=1).value = "Hat"  # type: ignore
+
+    # center all cells 
+    for row in ws.iter_rows():
+        for cell in row:
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+    
     wb.save(file_path)
 
 
