@@ -129,13 +129,13 @@ def excel_formatter(file_path: str):
     dim_holder['C'] = ColumnDimension(ws, min=3, max=3, width=18)
     dim_holder['D'] = ColumnDimension(ws, min=4, max=4, width=18)
 
-    # add filter to the first column
+    # add filter
     ws.auto_filter.ref = "A2:D2"
 
     # highlight the version and date cells
     ws['A1'].fill = redFill
     ws['A1'].font = Font(color = "FFFFFF", bold=True, size=11)
-
+    
     ws['B1'].fill = redFill
     ws['B1'].font = Font(color = "FFFFFF", bold=True, size=11)
 
