@@ -43,13 +43,13 @@ try:
     excel_file = input("\n>>> Enter the Excel file name: ")
     file = pd.read_excel(f'../Data/{excel_file}.xlsx')
     pipes = pd.read_excel('../Data/Cihazlar - Borular.xlsx')
+    types = pd.read_excel('../Data/Borular - Tipler.xlsx')
 except FileNotFoundError:
     print("File not found!")
     exit(1)
 
 # get the date index range
 date_start_index = file.columns[file.isin(['Pazartesi']).any()][0].split(' ')[1]  # type: ignore
-date_start_index
 
 shift_date = file.iloc[4:6, int(date_start_index): 31: 3].copy()
 shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
@@ -84,6 +84,7 @@ sheet["Cihaz TTNr"] = sheet["Cihaz TTNr"].astype(str)
 pipes["Cihaz"] = pipes["Cihaz"].astype(str)
 
 sheet = sheet.merge(pipes, left_on="Cihaz TTNr", right_on="Cihaz", how="inner")
+sheet = sheet.merge(types, on="Boru", how="left")
 sheet.drop("Cihaz", axis=1, inplace=True)
 sheet.insert(3, 'Boru', sheet.pop('Boru'))
 sheet["Cihaz TTNr"] = sheet["Cihaz TTNr"].astype("int64")
@@ -94,17 +95,23 @@ df = pd.DataFrame(columns=pd.MultiIndex.from_product([shift_dates, shifts]),
                   index=range(sheet.shape[0]))
 df = pd.concat([pd.DataFrame(columns=pd.MultiIndex.from_product([indices,
                                                                  ["" for _ in range(len(indices))]])), df], axis=1)
+
 dates_df = df.iloc[:, 16:]
 initial_df = df.swaplevel(axis=1, i=0, j=1).iloc[:, :16]
 initial_df = initial_df.loc[:, ~initial_df.columns.duplicated()]  # type: ignore
 df = pd.concat([initial_df, dates_df], axis=1)
 
-sheet.iloc[:, 4:] = sheet.iloc[:, 4:].apply(lambda x: x * sheet.iloc[:, -1], axis=0)
+sheet.iloc[:, 4:-1] = sheet.iloc[:, 4:-1].apply(lambda x: x * sheet.iloc[:, -2], axis=0)
 
 sheet.drop("Miktar", axis=1, inplace=True)
 sheet.drop("Toplam Adet", axis=1, inplace=True)
 
 df.iloc[:, :] = sheet.iloc[:, :]
+df["Tip"] = sheet["Tip"]
+
+type_df = df.swaplevel(axis=1, i=0, j=1).iloc[:, -1]
+df = pd.concat([df.iloc[:, :-1], type_df], axis=1)
+df.insert(4, ('', 'Tip'), df.pop(('', 'Tip')))  # type: ignore
 
 df = df.set_index(("", "Hat")).rename_axis(None, axis=0)
 
@@ -133,9 +140,10 @@ def excel_formatter(file_path: str):
     dim_holder['B'] = ColumnDimension(ws, min=2, max=2, width=18)
     dim_holder['C'] = ColumnDimension(ws, min=3, max=3, width=18)
     dim_holder['D'] = ColumnDimension(ws, min=4, max=4, width=18)
+    dim_holder['E'] = ColumnDimension(ws, min=5, max=5, width=18)
 
     # add filter
-    ws.auto_filter.ref = "A2:D2"
+    ws.auto_filter.ref = "A2:E2"
 
     # highlight the version and date cells
     ws['A1'].fill = redFill
@@ -157,7 +165,7 @@ def excel_version(file_path: str):
     wb = openpyxl.load_workbook(file_path)
     ws = wb.active
     ws.cell(row=1, column=1).value = version_value
-    ws.cell(row=1, column=2).value = str(update_date_value)   # type: ignore
+    ws.cell(row=1, column=2).value = str(update_date_value)  # type: ignore
     ws.cell(row=2, column=1).value = "Hat"  # type: ignore
 
     # center all cells 
