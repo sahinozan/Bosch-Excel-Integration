@@ -33,6 +33,8 @@ if find_spec("openpyxl") is None:
 
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
+from openpyxl.styles import Color, PatternFill, Font, Border
+from openpyxl.styles import colors
 import openpyxl
 import pandas as pd
 
@@ -101,6 +103,11 @@ df.iloc[:, :] = sheet.iloc[:, :]
 
 df = df.set_index(("", "Hat")).rename_axis(None, axis=0)
 
+# Colors for excel formatting
+redFill = PatternFill(start_color='FFFF0000',
+                   end_color='FFFF0000',
+                   fill_type='solid')
+
 
 # format the Excel column dimensions
 def excel_formatter(file_path: str):
@@ -113,21 +120,27 @@ def excel_formatter(file_path: str):
     for col in range(ws.min_column, ws.max_column + 1):
         dim_holder[get_column_letter(col)] = ColumnDimension(ws, min=col, max=col, width=18)
 
+    ws['A1'].fill = redFill
+    ws['A1'].font = Font(color = "FFFFFF", bold=True, size=11)
+
+    ws['B1'].fill = redFill
+    ws['B1'].font = Font(color = "FFFFFF", bold=True, size=11)
+
     ws.column_dimensions = dim_holder
     wb.save(file_path)
 
 
 version_value = version.iloc[0] + " - " + version.iloc[1]
-version_value
+update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
 
 
 # add the Excel version to the file
 def excel_version(file_path: str):
     wb = openpyxl.load_workbook(file_path)
     ws = wb.active
-    ws.cell(row=1, column=1).value = str(update_date.iloc[0])  # type: ignore
-    ws.cell(row=1, column=2).value = str(update_date.iloc[1])   # type: ignore
-    ws.cell(row=2, column=1).value = version_value
+    ws.cell(row=1, column=1).value = version_value
+    ws.cell(row=1, column=2).value = str(update_date_value)   # type: ignore
+    ws.cell(row=2, column=1).value = "Hat" # type: ignore
     wb.save(file_path)
 
 
