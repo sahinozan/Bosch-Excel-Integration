@@ -32,7 +32,7 @@ if find_spec("openpyxl") is None:
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl', '--disable-pip-version-check'])
 
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder, RowDimension
+from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
 from openpyxl.styles import PatternFill, Font
 from openpyxl.styles import Alignment
 import openpyxl
@@ -40,7 +40,8 @@ import pandas as pd
 
 # read data source files
 try:
-    file = pd.read_excel('../Data/KW47_V00.xlsx')
+    excel_file = input("\n>>> Enter the Excel file name: ")
+    file = pd.read_excel(f'../Data/{excel_file}.xlsx')
     pipes = pd.read_excel('../Data/Cihazlar - Borular.xlsx')
 except FileNotFoundError:
     print("File not found!")
