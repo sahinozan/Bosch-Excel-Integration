@@ -1,0 +1,18 @@
+Kurallar:
+
+• Borunun hidrolik borusu olup olmadığı ekle
+• Cihazı bulamıyorsa uyarı versin
+• Son pivot haline getirmek
+
+1. Eğer bir boru Hidrolik 2, Hidrolik* veya Yedek Parça* ise , her türlü 1 vardiya öne çekilmelidir.
+2. Normal hidrolik ve normal yedek parça ise, yalın 3 ve yalın 4'te her türlü 1 vardiya öne çekilmelidir.
+3. Yalın 3 hariç tüm hatların vardiya değişiminde bir sonraki vardiyadan 40 adet öne çekme yapılır.
+    a. Eğer bir sonraki vardiyada 30'dan düşük adet kalacaksa (Yani 70 adetten az varsa), tamamı çekilir.
+4. Yalın 3 vardiya değişiminde bir sonraki vardiyadan 30 adet öne çekme yapılır.
+    a. Eğer bir sonraki vardiyada 30'dan düşük adet kalacaksa (Yani 70 adetten az varsa), tamamı çekilir.
+
+• Pazar günü, Pazartesi gününden nasıl çeker? (Pazar günü çalışılmayan günlerde Cumartesi sıkıntı)
+• Kod günlük çalışmalı
+• Pazarı yaparken Pazartesi son durum kaydedilmeli
+• Gün özelinde odaklanmak
+• Kurallarını üretimde de sağlıyorlar
