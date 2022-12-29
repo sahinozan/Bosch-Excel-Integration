@@ -183,8 +183,8 @@ try:
     df.to_excel(f"../Data/Output/{excel_file}_output.xlsx")
     print(">>> Conversion completed successfully!")
     print(">>> Excel Formatting started...")
-    excel_formatter(file_path="../Data/source.xlsx")
-    excel_version(file_path="../Data/source.xlsx")
+    excel_formatter(file_path=f"../Data/Output/{excel_file}_output.xlsx")
+    excel_version(file_path=f"../Data/Output/{excel_file}_output.xlsx")
     print(">>> Excel Formatting completed successfully!")
 except PermissionError:
     print(">>> Conversion failed!")
