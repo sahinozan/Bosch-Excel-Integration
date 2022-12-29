@@ -42,7 +42,7 @@ import pandas as pd
 # read data source files
 try:
     excel_file = input("\n>>> Enter the Excel file name: ")
-    file = pd.read_excel(f'../Data/{excel_file}.xlsx')
+    file = pd.read_excel(f'../Data/Source/{excel_file}.xlsx')
     pipes = pd.read_excel('../Data/Cihazlar - Borular.xlsx')
     types = pd.read_excel('../Data/Borular - Tipler.xlsx')
 except FileNotFoundError:
@@ -180,7 +180,7 @@ def excel_version(file_path: str):
 # write the dataframe to an Excel file
 try:
     print(">>>\n>>> Conversion started...")
-    df.to_excel("../Data/source.xlsx")
+    df.to_excel(f"../Data/Output/{excel_file}_output.xlsx")
     print(">>> Conversion completed successfully!")
     print(">>> Excel Formatting started...")
     excel_formatter(file_path="../Data/source.xlsx")
