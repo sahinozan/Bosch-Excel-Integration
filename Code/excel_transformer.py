@@ -5,6 +5,7 @@ import warnings
 import subprocess
 import datetime
 import sys
+import os
 
 warnings.filterwarnings("ignore")
 
@@ -31,13 +32,19 @@ if find_spec('pandas') is None:
 if find_spec("openpyxl") is None:
     print("\n>>> Installing openpyxl...\n")
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl', '--disable-pip-version-check'])
+if find_spec("numpy") is None:
+    print("\n>>> Installing numpy...\n")
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'numpy', '--disable-pip-version-check'])
 
-from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
-from openpyxl.styles import PatternFill, Font
-from openpyxl.styles import Alignment
-import openpyxl
+import numpy as np
 import pandas as pd
+import openpyxl
+from openpyxl.styles import Alignment
+from openpyxl.styles import PatternFill, Font
+from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
+from openpyxl.utils import get_column_letter
+
+
 
 # read data source files
 try:
@@ -49,8 +56,8 @@ except FileNotFoundError:
     print("File not found!")
     exit(1)
 
-# get the date index range
-date_start_index = file.columns[file.isin(['Pazartesi']).any()][0].split(' ')[1]  # type: ignore
+#  get the date index range
+date_start_index = file.columns[file.isin(['Pazartesi']).any()][0].split(' ')[1]
 
 shift_date = file.iloc[4:6, int(date_start_index): 31: 3].copy()
 shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
@@ -99,7 +106,7 @@ df = pd.concat([pd.DataFrame(columns=pd.MultiIndex.from_product([indices,
 
 dates_df = df.iloc[:, 16:]
 initial_df = df.swaplevel(axis=1, i=0, j=1).iloc[:, :16]
-initial_df = initial_df.loc[:, ~initial_df.columns.duplicated()]  # type: ignore
+initial_df = initial_df.loc[:, ~initial_df.columns.duplicated()]
 df = pd.concat([initial_df, dates_df], axis=1)
 
 sheet.iloc[:, 4:-1] = sheet.iloc[:, 4:-1].apply(lambda x: x * sheet.iloc[:, -2], axis=0)
@@ -112,48 +119,66 @@ df["Tip"] = sheet["Tip"]
 
 type_df = df.swaplevel(axis=1, i=0, j=1).iloc[:, -1]
 df = pd.concat([df.iloc[:, :-1], type_df], axis=1)
-df.insert(4, ('', 'Tip'), df.pop(('', 'Tip')))  # type: ignore
+df.insert(4, ('', 'Tip'), df.pop(('', 'Tip')))
 
 df = df.set_index(("", "Hat")).rename_axis(None, axis=0)
 
 # Colors for excel formatting
 redFill = PatternFill(start_color='FFFF0000',
-                   end_color='FFFF0000',
-                   fill_type='solid')
+                      end_color='FFFF0000',
+                      fill_type='solid')
+
+df.iloc[:, 4:] = df.iloc[:, 4:].apply(pd.to_numeric, errors='coerce')
+
+df_pivot = df.sort_index(key=lambda x: (x.to_series().str[6:].astype("int64")))
+df_pivot = df_pivot.drop(columns=[('', 'Cihaz TTNr'), ('', 'Cihaz Aile'), ('', 'Tip')])
+
+df_pivot.index = df_pivot.index.str.split(' ').str[1]
+df_pivot = df_pivot.groupby([df_pivot.index, ("", "Boru TTNr")]).sum().sort_index(ascending=False)
+df_pivot = df_pivot.reset_index(level=1, drop=False)
+df_pivot.index = df_pivot.index.map(lambda x: f"Yalın {x}")
+df_pivot["Tip"] = df_pivot.loc[:, ("", "Boru TTNr")].map(types.set_index("Boru")["Tip"])
+
+swapped_types = df_pivot.iloc[:, -1].to_frame().swaplevel(axis=1, i=0, j=1).iloc[:, 0].to_frame()
+df_pivot.insert(1, ('', 'Tip'), swapped_types)
+df_pivot.drop(("Tip", ""), axis=1, inplace=True)
+
+df_pivot.iloc[:, 2:] = df_pivot.iloc[:, 2:].applymap(lambda x: np.nan if x == 0 else x)
 
 
 # format the Excel column dimensions
-def excel_formatter(file_path: str):
+def general_excel_formatter(file_path: str):
     wb = openpyxl.load_workbook(file_path)
-    ws = wb.active
-    ws.delete_rows(3)
 
-    dim_holder = DimensionHolder(worksheet=ws)
+    ws1 = wb["Sheet1"]
+    ws1.delete_rows(3)
 
-    for col in range(ws.min_column, ws.max_column + 1):
-        dim_holder[get_column_letter(col)] = ColumnDimension(ws, min=col, max=col, width=12)
+    dim_holder = DimensionHolder(worksheet=ws1)
 
-    # change the height of all rows
-    for row in range(ws.min_row, ws.max_row + 1):
-        ws.row_dimensions[row].height = 20
+    for col in range(ws1.min_column, ws1.max_column + 1):
+        dim_holder[get_column_letter(col)] = ColumnDimension(ws1, min=col, max=col, width=12)
+
+    #  change the height of all rows
+    for row in range(ws1.min_row, ws1.max_row + 1):
+        ws1.row_dimensions[row].height = 20
 
     # change the size of B, C, and D columns
-    dim_holder['B'] = ColumnDimension(ws, min=2, max=2, width=18)
-    dim_holder['C'] = ColumnDimension(ws, min=3, max=3, width=18)
-    dim_holder['D'] = ColumnDimension(ws, min=4, max=4, width=18)
-    dim_holder['E'] = ColumnDimension(ws, min=5, max=5, width=18)
+    dim_holder['B'] = ColumnDimension(ws1, min=2, max=2, width=18)
+    dim_holder['C'] = ColumnDimension(ws1, min=3, max=3, width=18)
+    dim_holder['D'] = ColumnDimension(ws1, min=4, max=4, width=18)
+    dim_holder['E'] = ColumnDimension(ws1, min=5, max=5, width=18)
 
     # add filter
-    ws.auto_filter.ref = "A2:E2"
+    ws1.auto_filter.ref = "A2:E2"
 
     # highlight the version and date cells
-    ws['A1'].fill = redFill
-    ws['A1'].font = Font(color = "FFFFFF", bold=True, size=11)
-    
-    ws['B1'].fill = redFill
-    ws['B1'].font = Font(color = "FFFFFF", bold=True, size=11)
+    ws1['A1'].fill = redFill
+    ws1['A1'].font = Font(color="FFFFFF", bold=True, size=11)
 
-    ws.column_dimensions = dim_holder
+    ws1['B1'].fill = redFill
+    ws1['B1'].font = Font(color="FFFFFF", bold=True, size=11)
+
+    ws1.column_dimensions = dim_holder
     wb.save(file_path)
 
 
@@ -161,32 +186,83 @@ version_value = version.iloc[0] + " - " + version.iloc[1]
 update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
 
 
+def pivot_excel_formatter(file_path: str):
+    wb = openpyxl.load_workbook(file_path)
+
+    ws2 = wb["Sheet2"]
+    ws2.delete_rows(3)
+
+    dim_holder = DimensionHolder(worksheet=ws2)
+
+    for col in range(ws2.min_column, ws2.max_column + 1):
+        dim_holder[get_column_letter(col)] = ColumnDimension(ws2, min=col, max=col, width=12)
+
+    #  change the height of all rows
+    for row in range(ws2.min_row, ws2.max_row + 1):
+        ws2.row_dimensions[row].height = 20
+
+    # change the size of B, C, and D columns
+    dim_holder['B'] = ColumnDimension(ws2, min=2, max=2, width=18)
+    dim_holder['C'] = ColumnDimension(ws2, min=3, max=3, width=18)
+
+    # add filter
+    ws2.auto_filter.ref = "A2:C2"
+
+    # highlight the version and date cells
+    ws2['A1'].fill = redFill
+    ws2['A1'].font = Font(color="FFFFFF", bold=True, size=11)
+
+    ws2['B1'].fill = redFill
+    ws2['B1'].font = Font(color="FFFFFF", bold=True, size=11)
+
+    ws2.column_dimensions = dim_holder
+    wb.save(file_path)
+
+
 # add the Excel version to the file
 def excel_version(file_path: str):
     wb = openpyxl.load_workbook(file_path)
-    ws = wb.active
-    ws.cell(row=1, column=1).value = version_value
-    ws.cell(row=1, column=2).value = str(update_date_value)  # type: ignore
-    ws.cell(row=2, column=1).value = "Hat"  # type: ignore
 
-    # center all cells 
-    for row in ws.iter_rows():
-        for cell in row:
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-    
-    wb.save(file_path)
+    for sheet in wb.sheetnames:
+        ws = wb[sheet]
+        ws.cell(row=1, column=1).value = version_value
+        ws.cell(row=1, column=2).value = str(update_date_value)
+        ws.cell(row=2, column=1).value = "Hat"
+
+        # center all cells
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        wb.save(file_path)
 
 
 # write the dataframe to an Excel file
 try:
     print(">>>\n>>> Conversion started...")
-    df.to_excel(f"../Data/Output/{excel_file}_output.xlsx")
+
+    if os.path.exists(f"../Data/Output/{excel_file}_output.xlsx"):
+        wb = openpyxl.load_workbook(f"../Data/Output/{excel_file}_output.xlsx")
+
+        if "Sheet1" not in wb.sheetnames:
+            wb.create_sheet("Sheet1")
+        if "Sheet2" not in wb.sheetnames:
+            wb.create_sheet("Sheet2")
+
+        wb.save(f"../Data/Output/{excel_file}_output.xlsx")
+
+    with pd.ExcelWriter(f"../Data/Output/{excel_file}_output.xlsx", mode="w") as writer:
+        df.to_excel(writer, sheet_name="Sheet1")
+        df_pivot.to_excel(writer, sheet_name="Sheet2")
+
     print(">>> Conversion completed successfully!")
     print(">>> Excel Formatting started...")
-    excel_formatter(file_path=f"../Data/Output/{excel_file}_output.xlsx")
+    pivot_excel_formatter(file_path=f"../Data/Output/{excel_file}_output.xlsx")
+    general_excel_formatter(file_path=f"../Data/Output/{excel_file}_output.xlsx")
     excel_version(file_path=f"../Data/Output/{excel_file}_output.xlsx")
     print(">>> Excel Formatting completed successfully!")
-except PermissionError:
+except Exception as e:
+    print(e)
     print(">>> Conversion failed!")
 finally:
     print(">>> Terminating...")
