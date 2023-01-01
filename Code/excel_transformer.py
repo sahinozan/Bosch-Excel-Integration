@@ -1,8 +1,9 @@
 from __future__ import annotations
 from importlib.util import find_spec
 from sys import exit
+from glob import glob
 import warnings
-import subprocess
+from subprocess import check_output, check_call
 import datetime
 import sys
 import os
@@ -28,13 +29,13 @@ if sys.version_info.minor != 11:
 #  check if required packages are installed
 if find_spec('pandas') is None:
     print("\n>>> Installing pandas...\n")
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pandas', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'pandas', '--disable-pip-version-check'])
 if find_spec("openpyxl") is None:
     print("\n>>> Installing openpyxl...\n")
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl', '--disable-pip-version-check'])
 if find_spec("numpy") is None:
     print("\n>>> Installing numpy...\n")
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'numpy', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'numpy', '--disable-pip-version-check'])
 
 import numpy as np
 import pandas as pd
@@ -43,15 +44,60 @@ from openpyxl.styles import Alignment
 from openpyxl.styles import PatternFill, Font
 from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
 from openpyxl.utils import get_column_letter
-
-
-
+from transformer_ui import filename
+    
 # read data source files
 try:
-    excel_file = input("\n>>> Enter the Excel file name: ")
-    file = pd.read_excel(f'../Data/Source/{excel_file}.xlsx')
-    pipes = pd.read_excel('../Data/Cihazlar - Borular.xlsx')
-    types = pd.read_excel('../Data/Borular - Tipler.xlsx')
+    
+    print(">>> Do you want to manually enter the Excel file name? (Y/N)")
+    user_input = input(">>> ")
+    if user_input == "Y":
+        excel_file = input(">>> Enter the Excel file name: ")
+        file = pd.read_excel(os.path.dirname(os.getcwd()) + 
+                             "/Data/Source/" + excel_file + ".xlsx")
+        output_excel_file = os.path.dirname(os.getcwd()) + "/Data/Output/" + \
+            excel_file + "_output.xlsx"
+    elif user_input == "N":
+        source_file = check_output(["python", "transformer_ui.py"])
+        source_file = source_file.decode("utf-8")
+        source_file = str(source_file.strip())
+        
+        output_excel_file_dir = source_file.split("/")[:-1]
+        output_excel_file_name = list(source_file.split("/")[-1].split(".")[0])
+        output_excel_file_dir[output_excel_file_dir.index("Source")] = "Output"
+        output_excel_file_dir = "/".join(output_excel_file_dir)
+        output_excel_file_name.append("_output.xlsx")
+        output_excel_file_name = "".join(output_excel_file_name)
+        output_excel_file_dir = "".join(output_excel_file_dir)
+        output_excel_file = os.path.join(output_excel_file_dir, output_excel_file_name)
+        file = pd.read_excel(source_file)
+    else:
+        raise SystemError("!!> Invalid input!")
+
+    # ------------------------------ TESTING PURPOSES ------------------------------
+    #     print(">>> Checking the available Excel files in your current directory...")
+    #     available_excel_files = glob("../Data/Source/*.x")
+    #     available_excel_files = [os.path.basename(file) for file in available_excel_files]
+
+    #     if len(available_excel_files) == 0:
+    #         print("!!> No Excel file found in your current directory!")
+    #         exit(0)
+                
+    #     print(">>>\n[Available Excel files]")
+
+    #     for i, file in enumerate(available_excel_files):
+    #         print(f'{"":<3s}[{str(i+1):<2s}] - {file:>10s}')
+
+    #     #  get the index of the file to be read
+    #     file_index = int(input(">>> "))
+    #     excel_file = available_excel_files[file_index - 1].split('.')[0]
+    # else:
+    #     raise SystemError("!!> Invalid input!")
+    # ------------------------------ TESTING PURPOSES ------------------------------
+    
+    source_data_path = os.path.dirname(os.getcwd())    
+    pipes = pd.read_excel(source_data_path + "/Data/Cihazlar - Borular.xlsx")
+    types = pd.read_excel(source_data_path + "/Data/Borular - Tipler.xlsx")
 except FileNotFoundError:
     print("File not found!")
     exit(1)
@@ -123,7 +169,7 @@ df.insert(4, ('', 'Tip'), df.pop(('', 'Tip')))
 
 df = df.set_index(("", "Hat")).rename_axis(None, axis=0)
 
-# Colors for excel formatting
+# Colors for Excel formatting
 redFill = PatternFill(start_color='FFFF0000',
                       end_color='FFFF0000',
                       fill_type='solid')
@@ -241,25 +287,26 @@ def excel_version(file_path: str):
 try:
     print(">>>\n>>> Conversion started...")
 
-    if os.path.exists(f"../Data/Output/{excel_file}_output.xlsx"):
-        wb = openpyxl.load_workbook(f"../Data/Output/{excel_file}_output.xlsx")
+    if os.path.exists(filename):
+        print("asdasdasdsa")
+        wb = openpyxl.load_workbook(output_excel_file)
 
         if "Sheet1" not in wb.sheetnames:
             wb.create_sheet("Sheet1")
         if "Sheet2" not in wb.sheetnames:
             wb.create_sheet("Sheet2")
 
-        wb.save(f"../Data/Output/{excel_file}_output.xlsx")
+        wb.save(output_excel_file)
 
-    with pd.ExcelWriter(f"../Data/Output/{excel_file}_output.xlsx", mode="w") as writer:
+    with pd.ExcelWriter(output_excel_file, mode="w") as writer:
         df.to_excel(writer, sheet_name="Sheet1")
         df_pivot.to_excel(writer, sheet_name="Sheet2")
 
     print(">>> Conversion completed successfully!")
     print(">>> Excel Formatting started...")
-    pivot_excel_formatter(file_path=f"../Data/Output/{excel_file}_output.xlsx")
-    general_excel_formatter(file_path=f"../Data/Output/{excel_file}_output.xlsx")
-    excel_version(file_path=f"../Data/Output/{excel_file}_output.xlsx")
+    pivot_excel_formatter(file_path=output_excel_file)
+    general_excel_formatter(file_path=output_excel_file)
+    excel_version(file_path=output_excel_file)
     print(">>> Excel Formatting completed successfully!")
 except Exception as e:
     print(e)
