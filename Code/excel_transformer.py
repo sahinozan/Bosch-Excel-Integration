@@ -36,6 +36,9 @@ if find_spec("openpyxl") is None:
 if find_spec("numpy") is None:
     print("\n>>> Installing numpy...\n")
     check_call([sys.executable, '-m', 'pip', 'install', 'numpy', '--disable-pip-version-check'])
+if find_spec("tkinter") is None:
+    print("\n>>> Installing tkinter...\n")
+    check_call([sys.executable, '-m', 'pip', 'install', 'tkinter', '--disable-pip-version-check'])
 
 import numpy as np
 import pandas as pd
