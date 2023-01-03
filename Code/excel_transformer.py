@@ -1,7 +1,6 @@
 from __future__ import annotations
 from importlib.util import find_spec
 from sys import exit
-from glob import glob
 import warnings
 from subprocess import check_output, check_call
 import datetime
@@ -29,42 +28,62 @@ if sys.version_info.minor != 11:
 #  check if required packages are installed
 if find_spec('pandas') is None:
     print("\n>>> Installing pandas...\n")
-    check_call([sys.executable, '-m', 'pip', 'install', 'pandas', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'pandas',
+               '--disable-pip-version-check --no-warn-script-location'])
 if find_spec("openpyxl") is None:
     print("\n>>> Installing openpyxl...\n")
-    check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl',
+               '--disable-pip-version-check --no-warn-script-location'])
 if find_spec("numpy") is None:
     print("\n>>> Installing numpy...\n")
-    check_call([sys.executable, '-m', 'pip', 'install', 'numpy', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'numpy',
+               '--disable-pip-version-check --no-warn-script-location'])
 if find_spec("tkinter") is None:
     print("\n>>> Installing tkinter...\n")
-    check_call([sys.executable, '-m', 'pip', 'install', 'tkinter', '--disable-pip-version-check'])
+    check_call([sys.executable, '-m', 'pip', 'install', 'tkinter',
+               '--disable-pip-version-check --no-warn-script-location'])
 
-import numpy as np
-import pandas as pd
-import openpyxl
-from openpyxl.styles import Alignment
-from openpyxl.styles import PatternFill, Font
-from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
+
 from openpyxl.utils import get_column_letter
-from transformer_ui import filename
-    
+from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
+from openpyxl.styles import PatternFill, Font
+from openpyxl.styles import Alignment
+import openpyxl
+import pandas as pd
+import numpy as np
+
+
 # read data source files
 try:
-    
     print(">>> Do you want to manually enter the Excel file name? (Y/N)")
     user_input = input(">>> ")
     if user_input == "Y":
         excel_file = input(">>> Enter the Excel file name: ")
-        file = pd.read_excel(os.path.dirname(os.getcwd()) + 
+        
+        if str(os.getcwd()).split("/")[-1] == "Code":
+            source_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
+                "/Data/Source/" + excel_file + ".xlsx"
+            file = pd.read_excel(source_path)
+            output_excel_file = "/".join(str(os.getcwd()).split("/")[:-1]) + \
+                "/Data/Output/" + excel_file + "_output.xlsx"
+        else:
+            source_path = os.getcwd() + "/Data/Source/" + excel_file + ".xlsx"
+            file = pd.read_excel(os.getcwd() +
                              "/Data/Source/" + excel_file + ".xlsx")
-        output_excel_file = os.path.dirname(os.getcwd()) + "/Data/Output/" + \
-            excel_file + "_output.xlsx"
+            output_excel_file = os.getcwd() + "/Data/Output/" + excel_file + "_output.xlsx"
+            
     elif user_input == "N":
-        source_file = check_output(["python", "transformer_ui.py"])
+        if str(os.getcwd()).split("/")[-1] == "Code":
+            source_file = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
+        else:
+            source_file = check_output(["python", f"{os.getcwd()}/Code/transformer_ui.py"])
         source_file = source_file.decode("utf-8")
         source_file = str(source_file.strip())
-        
+
+        if len(source_file) == 0:
+            print("!!> You have not selected an Excel file!")
+            exit(0)
+
         output_excel_file_dir = source_file.split("/")[:-1]
         output_excel_file_name = list(source_file.split("/")[-1].split(".")[0])
         output_excel_file_dir[output_excel_file_dir.index("Source")] = "Output"
@@ -73,40 +92,28 @@ try:
         output_excel_file_name = "".join(output_excel_file_name)
         output_excel_file_dir = "".join(output_excel_file_dir)
         output_excel_file = os.path.join(output_excel_file_dir, output_excel_file_name)
+
         file = pd.read_excel(source_file)
     else:
         raise SystemError("!!> Invalid input!")
 
-    # ------------------------------ TESTING PURPOSES ------------------------------
-    #     print(">>> Checking the available Excel files in your current directory...")
-    #     available_excel_files = glob("../Data/Source/*.x")
-    #     available_excel_files = [os.path.basename(file) for file in available_excel_files]
-
-    #     if len(available_excel_files) == 0:
-    #         print("!!> No Excel file found in your current directory!")
-    #         exit(0)
-                
-    #     print(">>>\n[Available Excel files]")
-
-    #     for i, file in enumerate(available_excel_files):
-    #         print(f'{"":<3s}[{str(i+1):<2s}] - {file:>10s}')
-
-    #     #  get the index of the file to be read
-    #     file_index = int(input(">>> "))
-    #     excel_file = available_excel_files[file_index - 1].split('.')[0]
-    # else:
-    #     raise SystemError("!!> Invalid input!")
-    # ------------------------------ TESTING PURPOSES ------------------------------
+    if str(os.getcwd()).split("/")[-1] == "Code":
+        pipes_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
+            "/Data/Cihazlar - Borular.xlsx"
+        types_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
+            "/Data/Borular - Tipler.xlsx"
+    else:
+        pipes_path = os.getcwd() + "/Data/Cihazlar - Borular.xlsx"
+        types_path = os.getcwd() + "/Data/Borular - Tipler.xlsx"
     
-    source_data_path = os.path.dirname(os.getcwd())    
-    pipes = pd.read_excel(source_data_path + "/Data/Cihazlar - Borular.xlsx")
-    types = pd.read_excel(source_data_path + "/Data/Borular - Tipler.xlsx")
+    pipes = pd.read_excel(pipes_path)
+    types = pd.read_excel(types_path)
 except FileNotFoundError:
     print("File not found!")
     exit(1)
 
 #  get the date index range
-date_start_index = file.columns[file.isin(['Pazartesi']).any()][0].split(' ')[1]
+date_start_index = str(file.columns[file.isin(['Pazartesi']).any()][0]).split(' ')[1]
 
 shift_date = file.iloc[4:6, int(date_start_index): 31: 3].copy()
 shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
@@ -189,7 +196,7 @@ df_pivot.index = df_pivot.index.map(lambda x: f"Yalın {x}")
 df_pivot["Tip"] = df_pivot.loc[:, ("", "Boru TTNr")].map(types.set_index("Boru")["Tip"])
 
 swapped_types = df_pivot.iloc[:, -1].to_frame().swaplevel(axis=1, i=0, j=1).iloc[:, 0].to_frame()
-df_pivot.insert(1, ('', 'Tip'), swapped_types)
+df_pivot.insert(1, ('', 'Tip'), swapped_types) 
 df_pivot.drop(("Tip", ""), axis=1, inplace=True)
 
 df_pivot.iloc[:, 2:] = df_pivot.iloc[:, 2:].applymap(lambda x: np.nan if x == 0 else x)
@@ -199,8 +206,8 @@ df_pivot.iloc[:, 2:] = df_pivot.iloc[:, 2:].applymap(lambda x: np.nan if x == 0 
 def general_excel_formatter(file_path: str):
     wb = openpyxl.load_workbook(file_path)
 
-    ws1 = wb["Sheet1"]
-    ws1.delete_rows(3)
+    ws1 = wb["Sheet1"]  # type: Worksheet
+    ws1.delete_rows(3)  
 
     dim_holder = DimensionHolder(worksheet=ws1)
 
@@ -238,7 +245,8 @@ update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
 def pivot_excel_formatter(file_path: str):
     wb = openpyxl.load_workbook(file_path)
 
-    ws2 = wb["Sheet2"]
+    ws2 = wb["Sheet2"]  # type: Worksheet
+
     ws2.delete_rows(3)
 
     dim_holder = DimensionHolder(worksheet=ws2)
@@ -273,7 +281,7 @@ def excel_version(file_path: str):
     wb = openpyxl.load_workbook(file_path)
 
     for sheet in wb.sheetnames:
-        ws = wb[sheet]
+        ws = wb[sheet]  # type: Worksheet
         ws.cell(row=1, column=1).value = version_value
         ws.cell(row=1, column=2).value = str(update_date_value)
         ws.cell(row=2, column=1).value = "Hat"
@@ -289,9 +297,8 @@ def excel_version(file_path: str):
 # write the dataframe to an Excel file
 try:
     print(">>>\n>>> Conversion started...")
-
-    if os.path.exists(filename):
-        print("asdasdasdsa")
+    
+    if os.path.exists(output_excel_file):
         wb = openpyxl.load_workbook(output_excel_file)
 
         if "Sheet1" not in wb.sheetnames:
@@ -306,14 +313,19 @@ try:
         df_pivot.to_excel(writer, sheet_name="Sheet2")
 
     print(">>> Conversion completed successfully!")
+except Exception as e:
+    print(">>> Conversion failed!")
+    print(">>> Terminating...")
+    exit(1)
+
+try:
     print(">>> Excel Formatting started...")
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file)
     excel_version(file_path=output_excel_file)
     print(">>> Excel Formatting completed successfully!")
-except Exception as e:
-    print(e)
-    print(">>> Conversion failed!")
+except PermissionError:
+    print(">>> Formatting failed!")
 finally:
     print(">>> Terminating...")
     exit(0)
