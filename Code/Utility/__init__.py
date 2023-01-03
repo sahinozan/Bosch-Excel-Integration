@@ -184,13 +184,19 @@ def pivot_excel_formatter(file_path: str) -> None:
     wb.save(file_path)
 
 
-def excel_version(file_path: str, version: str, update_date: str) -> None:
+def excel_version(file_path: str, file: pd.DataFrame) -> None:
     wb = openpyxl.load_workbook(file_path)
 
+    version = file.iloc[[3, 4], 7]
+    update_date = file.iloc[[3, 4], 8]
+
+    version_value = version.iloc[0] + " - " + version.iloc[1]
+    update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
+
     for sheet in wb.sheetnames:
-        ws = wb[sheet]
-        ws.cell(row=1, column=1).value = version
-        ws.cell(row=1, column=2).value = str(update_date)
+        ws = wb[sheet]  
+        ws.cell(row=1, column=1).value = version_value
+        ws.cell(row=1, column=2).value = str(update_date_value)
         ws.cell(row=2, column=1).value = "Hat"
 
         # center all cells
