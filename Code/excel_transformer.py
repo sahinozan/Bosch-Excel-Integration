@@ -1,5 +1,5 @@
 from __future__ import annotations
-from Code.Utility import *
+from Utility import *
 from sys import exit
 import warnings
 from subprocess import check_output

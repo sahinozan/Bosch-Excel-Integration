@@ -4,6 +4,7 @@ from sys import exit
 import os
 import sys
 
+
 def package_control(packages: list):
     for package in packages:
         if find_spec(package) is None:
@@ -26,6 +27,7 @@ redFill = PatternFill(start_color='FFFF0000',
                       end_color='FFFF0000',
                       fill_type='solid')
 
+
 def file_path_handler(user_input: str):
     if user_input == "Y":
         excel_file = input(">>> Enter the Excel file name: ")
@@ -43,8 +45,7 @@ def file_path_handler(user_input: str):
         else:
             source_path = os.getcwd() + "/Data/Source/" + excel_file + ".xlsx"
             try:
-                file = pd.read_excel(os.getcwd() +
-                                     "/Data/Source/" + excel_file + ".xlsx")
+                file = pd.read_excel(source_path)
             except FileNotFoundError:
                 print("!!> File not found!")
                 exit(0)
@@ -76,7 +77,8 @@ def file_path_handler(user_input: str):
             print("!!> File not found!")
             exit(0)
     else:
-        raise SystemError("!!> Invalid input!")
+        print("!!> Invalid input!")
+        exit(1)
 
     if str(os.getcwd()).split("/")[-1] == "Code":
         pipes_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
@@ -116,7 +118,7 @@ def python_version_control() -> None:
 def general_excel_formatter(file_path: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
-    ws1 = wb["Sheet1"]  # type: Worksheet
+    ws1 = wb["Sheet1"]
     ws1.delete_rows(3)
 
     dim_holder = DimensionHolder(worksheet=ws1)
@@ -151,7 +153,7 @@ def general_excel_formatter(file_path: str) -> None:
 def pivot_excel_formatter(file_path: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
-    ws2 = wb["Sheet2"]  # type: Worksheet
+    ws2 = wb["Sheet2"]
 
     ws2.delete_rows(3)
 
@@ -186,7 +188,7 @@ def excel_version(file_path: str, version: str, update_date: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
     for sheet in wb.sheetnames:
-        ws = wb[sheet]  # type: Worksheet
+        ws = wb[sheet]
         ws.cell(row=1, column=1).value = version
         ws.cell(row=1, column=2).value = str(update_date)
         ws.cell(row=2, column=1).value = "Hat"
