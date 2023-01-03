@@ -16,7 +16,7 @@ package_control(packages=["pandas", "openpyxl", "numpy", "tkinter"])
 import numpy as np
 import pandas as pd
 
-# read data source files
+# get user input and read data source files
 print(">>> Do you want to manually enter the Excel file name? (Y/N)")
 user_input = input(">>> ")
 file, pipes, types, output_excel_file = file_path_handler(user_input=user_input)

@@ -96,7 +96,7 @@ def file_path_handler(user_input: str):
     return file, pipes, types, output_excel_file
 
 
-def python_version_control():
+def python_version_control() -> None:
     if sys.version_info.major != 3:
         raise SystemError("!!> Python version must be 3.X.X (preferably, 3.11.X)")
     if sys.version_info.minor != 11:
@@ -113,7 +113,7 @@ def python_version_control():
             raise SystemError("!!> Invalid input!")
 
 
-def general_excel_formatter(file_path: str):
+def general_excel_formatter(file_path: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
     ws1 = wb["Sheet1"]  # type: Worksheet
@@ -148,7 +148,7 @@ def general_excel_formatter(file_path: str):
     wb.save(file_path)
 
 
-def pivot_excel_formatter(file_path: str):
+def pivot_excel_formatter(file_path: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
     ws2 = wb["Sheet2"]  # type: Worksheet
@@ -182,7 +182,7 @@ def pivot_excel_formatter(file_path: str):
     wb.save(file_path)
 
 
-def excel_version(file_path: str, version: str, update_date: str):
+def excel_version(file_path: str, version: str, update_date: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
     for sheet in wb.sheetnames:
@@ -199,7 +199,7 @@ def excel_version(file_path: str, version: str, update_date: str):
         wb.save(file_path)
 
 
-def check_and_create_sheet(output_excel_file: str):
+def check_and_create_sheet(output_excel_file: str) -> None:
 
     print(">>>\n>>> Validating Excel Files...")
     try:
@@ -225,7 +225,7 @@ def check_and_create_sheet(output_excel_file: str):
 
 
 def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
-                   main_sheet_name="Sheet1", pivot_sheet_name="Sheet2"):
+                   main_sheet_name="Sheet1", pivot_sheet_name="Sheet2") -> None:
 
     print(">>>\n>>> Conversion started...")
 
