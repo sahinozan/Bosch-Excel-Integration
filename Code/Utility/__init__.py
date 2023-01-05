@@ -137,7 +137,7 @@ def general_excel_formatter(file_path: str) -> None:
     dim_holder['E'] = ColumnDimension(ws1, min=5, max=5, width=18)
 
     # add filter
-    ws1.auto_filter.ref = "A2:E2"
+    ws1.auto_filter.ref = "A2:Z2"
 
     # highlight the version and date cells
     ws1['A1'].fill = redFill
@@ -171,7 +171,7 @@ def pivot_excel_formatter(file_path: str) -> None:
     dim_holder['C'] = ColumnDimension(ws2, min=3, max=3, width=18)
 
     # add filter
-    ws2.auto_filter.ref = "A2:C2"
+    ws2.auto_filter.ref = "A2:Z2"
 
     # highlight the version and date cells
     ws2['A1'].fill = redFill
