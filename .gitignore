@@ -10,3 +10,4 @@
 /.vscode
 /.ipynb_checkpoints
 /.history
+__pycache__/
