@@ -28,28 +28,57 @@ redFill = PatternFill(start_color='FFFF0000',
                       fill_type='solid')
 
 
-def file_path_handler():
-    print(os.getcwd())
-    source_file = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
-    source_file = source_file.decode("utf-8")
-    source_file = str(source_file.strip())
+def file_path_handler(user_input: str):
+    if user_input == "Y":
+        excel_file = input(">>> Enter the Excel file name: ")
 
-    if len(source_file) == 0:
-        print("!!> You have not selected an Excel file!")
-        exit(0)
+        if str(os.getcwd()).split("/")[-1] == "Code":
+            source_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
+                "/Data/Source/" + excel_file + ".xlsx"
+            try:
+                file = pd.read_excel(source_path)
+            except FileNotFoundError:
+                print("!!> File not found!")
+                exit(0)
+            output_excel_file = "/".join(str(os.getcwd()).split("/")[:-1]) + \
+                "/Data/Output/" + excel_file + "_output.xlsx"
+        else:
+            source_path = os.getcwd() + "/Data/Source/" + excel_file + ".xlsx"
+            try:
+                file = pd.read_excel(source_path)
+            except FileNotFoundError:
+                print("!!> File not found!")
+                exit(0)
+            output_excel_file = os.getcwd() + "/Data/Output/" + excel_file + "_output.xlsx"
+    elif user_input == "N":
+        if str(os.getcwd()).split("/")[-1] == "Code":
+            source_file = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
+        else:
+            source_file = check_output(["python", f"{os.getcwd()}/Code/transformer_ui.py"])
+        source_file = source_file.decode("utf-8")
+        source_file = str(source_file.strip())
 
-    if os.path.dirname(source_file).split("/")[-1] == "Source":
-        output_excel_file = os.path.join(os.path.dirname(os.path.dirname(source_file)), "Output", os.path.basename(source_file).split(".")[0] + "_output.xlsx")
+        if len(source_file) == 0:
+            print("!!> You have not selected an Excel file!")
+            exit(0)
+
+        output_excel_file_dir = source_file.split("/")[:-1]
+        output_excel_file_name = list(source_file.split("/")[-1].split(".")[0])
+        output_excel_file_dir[output_excel_file_dir.index("Source")] = "Output"
+        output_excel_file_dir = "/".join(output_excel_file_dir)
+        output_excel_file_name.append("_output.xlsx")
+        output_excel_file_name = "".join(output_excel_file_name)
+        output_excel_file_dir = "".join(output_excel_file_dir)
+        output_excel_file = os.path.join(output_excel_file_dir, output_excel_file_name)
+
+        try:
+            file = pd.read_excel(source_file)
+        except FileNotFoundError:
+            print("!!> File not found!")
+            exit(0)
     else:
-        output_excel_file = os.path.join(os.path.dirname(source_file),  os.path.basename(source_file).split(".")[0] + "_output.xlsx")
-
-
-    try:
-        file = pd.read_excel(source_file)
-    except FileNotFoundError:
-        print("!!> File not found!")
-        exit(0)
-
+        print("!!> Invalid input!")
+        exit(1)
 
     if str(os.getcwd()).split("/")[-1] == "Code":
         pipes_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \

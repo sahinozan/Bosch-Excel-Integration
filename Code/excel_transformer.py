@@ -15,10 +15,8 @@ package_control(packages=["pandas", "openpyxl", "numpy", "tkinter"])
 import numpy as np
 import pandas as pd
 
-# get user input and read data source files
-print(">>> Do you want to manually enter the Excel file name? (Y/N)")
-user_input = input(">>> ")
-file, pipes, types, output_excel_file = file_path_handler(user_input=user_input)
+# read data source files
+file, pipes, types, output_excel_file = file_path_handler()
 
 #  get the date index range
 date_start_index = str(file.columns[file.isin(['Pazartesi']).any()][0]).split(' ')[1]
