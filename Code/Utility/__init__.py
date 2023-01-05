@@ -15,12 +15,14 @@ def package_control(packages: list):
 
 package_control(packages=["pandas", "openpyxl", "numpy"])
 
+
 from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
 from openpyxl.styles import PatternFill, Font
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 import openpyxl
 import pandas as pd
+
 
 # Colors for Excel formatting
 redFill = PatternFill(start_color='FFFF0000',
@@ -29,27 +31,54 @@ redFill = PatternFill(start_color='FFFF0000',
 
 
 def file_path_handler():
-    print(os.getcwd())
-    source_file = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
-    source_file = source_file.decode("utf-8")
-    source_file = str(source_file.strip())
+    directory = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
+    directory = directory.decode("utf-8")
+    directory = str(directory.strip())
+    paths = {}
+    
+    for i in directory.split("\n"):
+        component = i.split(":")
+        if len(component) > 1:
+            paths[component[0]] = component[1]
 
-    if len(source_file) == 0:
-        print("!!> You have not selected an Excel file!")
+    paths = dict(sorted(paths.items(), key=lambda item: item[0], reverse=True))
+
+    # input validation for file paths (will be updated to an elegant solution!!)
+    if "Source" in paths.keys() and "Output" in paths.keys():
+        if paths["Source"] == "":
+            print("!!> You have not selected an Excel file!")
+            exit(0)
+        elif paths["Output"] == "":
+            print("!!> You have not selected an output destination!")
+            exit(0)
+    if "Source" in paths.keys() and not "Output" in paths.keys():
+        if paths["Source"] == "":
+            print("!!> You have not selected an Excel file and output destination!")
+            exit(0)
+        else:
+            print("!!> You have not selected an output destination!")
+            exit(0)
+    if "Output" in paths.keys() and not "Source" in paths.keys():
+        if paths["Output"] == "":
+            print("!!> You have not selected an Excel file and output destination!")
+            exit(0)
+        else:
+            print("!!> You have not selected an Excel file!")
+            exit(0)
+    if "Output" not in paths.keys() and "Source" not in paths.keys():
+        print("!!> You have not selected an Excel file and output destination!")
         exit(0)
-
-    if os.path.dirname(source_file).split("/")[-1] == "Source":
-        output_excel_file = os.path.join(os.path.dirname(os.path.dirname(source_file)), "Output", os.path.basename(source_file).split(".")[0] + "_output.xlsx")
-    else:
-        output_excel_file = os.path.join(os.path.dirname(source_file),  os.path.basename(source_file).split(".")[0] + "_output.xlsx")
-
+            
+    source_dir, output_dir = paths["Source"], paths["Output"]
+    source_file_name = source_dir.split("/")[-1]
+    output_dir = output_dir + "/" + source_file_name.split(".")[0] + "_output.xlsx"
+    
 
     try:
-        file = pd.read_excel(source_file)
+        source_file = pd.read_excel(source_dir)
     except FileNotFoundError:
         print("!!> File not found!")
         exit(0)
-
 
     if str(os.getcwd()).split("/")[-1] == "Code":
         pipes_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
@@ -66,7 +95,7 @@ def file_path_handler():
         print("!!> File not found!")
         exit(0)
 
-    return file, pipes, types, output_excel_file
+    return source_file, pipes, types, output_dir
 
 
 def python_version_control() -> None:
@@ -165,7 +194,7 @@ def excel_version(file_path: str, file: pd.DataFrame) -> None:
     update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
 
     for sheet in wb.sheetnames:
-        ws = wb[sheet]  
+        ws = wb[sheet]
         ws.cell(row=1, column=1).value = version_value
         ws.cell(row=1, column=2).value = str(update_date_value)
         ws.cell(row=2, column=1).value = "Hat"

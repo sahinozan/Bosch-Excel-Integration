@@ -3,17 +3,24 @@ from tkinter import filedialog
 import os
 
 current_directory = os.path.dirname(os.getcwd() + "/Data/Source/")
-filename = ""
+file_name = ""
+directory_name = ""
 
 
-def browseFiles():
-    global filename
-    filename = filedialog.askopenfilename(initialdir=current_directory,
+def browse_input_file():
+    global file_name
+    file_name = filedialog.askopenfilename(initialdir=current_directory,
                                           title="Select a File",
                                           filetypes=(("Excel files",
                                                       "*.xlsx"),))
-    print(filename)
-    root.destroy()
+    print(f"Source:{file_name}")
+
+
+def browse_output_destination():
+    global directory_name
+    directory_name = filedialog.askdirectory(initialdir=current_directory,
+                                             title="Select a Directory")
+    print(f"Output:{directory_name}")
 
 
 def create_ui():
@@ -46,12 +53,26 @@ def create_ui():
     # make the window non-resizable
     root.resizable(0, 0)
 
-    button_explore = Button(root,
-                            text="Browse Files",
-                            command=browseFiles)
+    button_source = Button(root,
+                           text="Select Excel File",
+                           command=browse_input_file)
 
-    button_explore.pack(side=TOP, anchor="center",
-                        expand=True, fill="both", padx=10, pady=10)
+    button_output = Button(root,
+                           text="Select Output Destination",
+                           command=browse_output_destination)
+
+    button_exit = Button(root,
+                         text="Start Transformation",
+                         command=root.destroy)
+
+    button_source.pack(side=TOP, anchor="center",
+                       expand=True, fill="both", padx=10, pady=5)
+
+    button_output.pack(side=TOP, anchor="center",
+                       expand=True, fill="both", padx=10, pady=5)
+
+    button_exit.pack(side=BOTTOM, anchor="center",
+                     expand=True, fill="both", padx=10, pady=5)
 
     # Let the window wait for any events
     root.mainloop()
