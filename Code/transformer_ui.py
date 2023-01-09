@@ -1,4 +1,4 @@
-from tkinter import *  # type: ignore
+from tkinter import *  
 from tkinter import filedialog
 import os
 

@@ -29,6 +29,8 @@ redFill = PatternFill(start_color='FFFF0000',
                       end_color='FFFF0000',
                       fill_type='solid')
 
+# directory separator = "/" for Linux and MacOS
+# directory separator = "\\" for Windows
 
 def file_path_handler():
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
@@ -38,8 +40,6 @@ def file_path_handler():
     directory = directory.decode("utf-8")
     directory = str(directory.strip())
     paths = {}
-
-    # print(directory)
     
     for i in directory.split(os.linesep):
         component = i.split("=")
