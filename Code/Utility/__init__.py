@@ -31,7 +31,10 @@ redFill = PatternFill(start_color='FFFF0000',
 
 
 def file_path_handler():
-    directory = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
+    if str(os.getcwd()).split("/")[-1] == "Code":
+        directory = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
+    else:
+        directory = check_output(["python", f"{os.getcwd()}/Code/transformer_ui.py"])
     directory = directory.decode("utf-8")
     directory = str(directory.strip())
     paths = {}
