@@ -13,14 +13,14 @@ def browse_input_file():
                                           title="Select a File",
                                           filetypes=(("Excel files",
                                                       "*.xlsx"),))
-    print(f"Source:{file_name}")
+    print(f"Source={file_name}")
 
 
 def browse_output_destination():
     global directory_name
     directory_name = filedialog.askdirectory(initialdir=current_directory,
                                              title="Select a Directory")
-    print(f"Output:{directory_name}")
+    print(f"Output={directory_name}")
 
 
 def create_ui():

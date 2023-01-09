@@ -31,16 +31,18 @@ redFill = PatternFill(start_color='FFFF0000',
 
 
 def file_path_handler():
-    if str(os.getcwd()).split("/")[-1] == "Code":
-        directory = check_output(["python", f"{os.getcwd()}/transformer_ui.py"])
+    if str(os.getcwd()).split(os.sep)[-1] == "Code":
+        directory = check_output(["python", f"{os.getcwd()}{os.sep}transformer_ui.py"])
     else:
-        directory = check_output(["python", f"{os.getcwd()}/Code/transformer_ui.py"])
+        directory = check_output(["python", f"{os.getcwd()}{os.sep}Code{os.sep}transformer_ui.py"])
     directory = directory.decode("utf-8")
     directory = str(directory.strip())
     paths = {}
+
+    # print(directory)
     
-    for i in directory.split("\n"):
-        component = i.split(":")
+    for i in directory.split(os.linesep):
+        component = i.split("=")
         if len(component) > 1:
             paths[component[0]] = component[1]
 
@@ -74,7 +76,7 @@ def file_path_handler():
             
     source_dir, output_dir = paths["Source"], paths["Output"]
     source_file_name = source_dir.split("/")[-1]
-    output_dir = output_dir + "/" + source_file_name.split(".")[0] + "_output.xlsx"
+    output_dir = output_dir + os.sep + source_file_name.split(".")[0] + "_output.xlsx"
     
 
     try:
@@ -83,14 +85,14 @@ def file_path_handler():
         print("!!> File not found!")
         exit(0)
 
-    if str(os.getcwd()).split("/")[-1] == "Code":
-        pipes_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
-            "/Data/Cihazlar - Borular.xlsx"
-        types_path = "/".join(str(os.getcwd()).split("/")[:-1]) + \
-            "/Data/Borular - Tipler.xlsx"
+    if str(os.getcwd()).split(os.sep)[-1] == "Code":
+        pipes_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
+            f"{os.sep}Data{os.sep}Cihazlar - Borular.xlsx"
+        types_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
+            f"{os.sep}Data{os.sep}Borular - Tipler.xlsx"
     else:
-        pipes_path = os.getcwd() + "/Data/Cihazlar - Borular.xlsx"
-        types_path = os.getcwd() + "/Data/Borular - Tipler.xlsx"
+        pipes_path = os.getcwd() + f"{os.sep}Data{os.sep}Cihazlar - Borular.xlsx"
+        types_path = os.getcwd() + f"{os.sep}Data{os.sep}Borular - Tipler.xlsx"
     try:
         pipes = pd.read_excel(pipes_path)
         types = pd.read_excel(types_path)
