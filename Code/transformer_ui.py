@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import filedialog
 import os
 
-current_directory = os.path.dirname(os.getcwd() + "/Data/Source/")
+current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
 file_name = ""
 directory_name = ""
 
