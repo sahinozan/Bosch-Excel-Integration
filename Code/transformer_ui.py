@@ -1,4 +1,4 @@
-from tkinter import *  
+from tkinter import *
 from tkinter import filedialog
 import os
 
@@ -10,9 +10,9 @@ directory_name = ""
 def browse_input_file():
     global file_name
     file_name = filedialog.askopenfilename(initialdir=current_directory,
-                                          title="Select a File",
-                                          filetypes=(("Excel files",
-                                                      "*.xlsx"),))
+                                           title="Select a File",
+                                           filetypes=(("Excel Files", "*.xlsx"),
+                                                      ("Excel Macro Files", "*.xlsm"),))
     print(f"Source={file_name}")
 
 
