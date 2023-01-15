@@ -2,11 +2,19 @@ from tkinter import *
 from tkinter import filedialog
 import os
 
+# initial directory for the file explorer
 current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
 file_name = ""
 directory_name = ""
 
+# Reading the file from console will be replaced with a better solution later
+# TODO: Read file names without using console for the standalone executable
+# TODO: Add a text bar for the selected input file directory in the UI
+# TODO: Add a text bar for the selected destination directory in the UI
+# TODO: Add a progress bar for the conversion process
+# TODO: Polish the UI and make it more appealing with Bosch colors 
 
+# browse the input file (opens a file dialog to check the file name)
 def browse_input_file():
     global file_name
     file_name = filedialog.askopenfilename(initialdir=current_directory,
@@ -16,6 +24,7 @@ def browse_input_file():
     print(f"Source={file_name}")
 
 
+# browse the output destination (opens a file dialog to check the directory name)
 def browse_output_destination():
     global directory_name
     directory_name = filedialog.askdirectory(initialdir=current_directory,
@@ -23,6 +32,7 @@ def browse_output_destination():
     print(f"Output={directory_name}")
 
 
+# create the user interface
 def create_ui():
 
     # Create the root window
