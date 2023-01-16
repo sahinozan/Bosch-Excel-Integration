@@ -19,6 +19,12 @@ import pandas as pd
 # read data source files
 file, pipes, types, output_excel_file = file_path_handler()
 
+# check if the Excel file is in the desired format 
+# TODO: create a more robust format control mechanism
+if len(file.columns[file.isin(['Pazartesi']).any()]) == 0:
+    print(">>> Format of this Excel file is not desired. Use an appropriate formatted Excel file.")
+    exit(0)
+
 #  get the date index range
 date_start_index = str(file.columns[file.isin(['Pazartesi']).any()][0]).split(' ')[1]
 
