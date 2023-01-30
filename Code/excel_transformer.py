@@ -1,20 +1,12 @@
 from __future__ import annotations
-from Utility import *
+from helper import *
 from sys import exit
 import warnings
 import datetime
-
-warnings.filterwarnings("ignore")
-
-# control if the required Python version is installed
-# python_version_control()
-
-# control if the required packages are installed and install them if not
-package_control(packages=["pandas", "openpyxl", "numpy", "tkinter"])
-
-# import modules after checking if they exist in the environment
 import numpy as np
 import pandas as pd
+
+warnings.filterwarnings("ignore")
 
 # read data source files
 file, pipes, types, output_excel_file = file_path_handler()
@@ -22,7 +14,6 @@ file, pipes, types, output_excel_file = file_path_handler()
 # check if the Excel file is in the desired format 
 # TODO: create a more robust format control mechanism
 if len(file.columns[file.isin(['Pazartesi']).any()]) == 0:
-    print(">>> Format of this Excel file is not desired. Use an appropriate formatted Excel file.")
     exit(0)
 
 #  get the date index range
@@ -133,13 +124,10 @@ check_and_create_sheet(output_excel_file)
 write_to_excel(output_excel_file, main=df, pivot=df_pivot)
 
 try:
-    print(">>>\n>>> Excel Formatting started...")
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file)
     excel_version(file_path=output_excel_file, file=file)
-    print(">>> Excel Formatting completed successfully!")
 except PermissionError:
-    print(">>> Formatting failed!")
+    exit(1)
 finally:
-    print(">>> Terminating...")
     exit(0)

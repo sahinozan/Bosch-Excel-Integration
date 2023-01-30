@@ -1,18 +1,18 @@
-from tkinter import *
+from tkinter import *  # type: ignore
 from tkinter import filedialog
+from helper import resource_path
 import os
-
-# initial directory for the file explorer
-current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
-file_name = ""
-directory_name = ""
 
 # Reading the file from console will be replaced with a better solution later
 # TODO: Read file names without using console for the standalone executable
 # TODO: Add a text bar for the selected input file directory in the UI
 # TODO: Add a text bar for the selected destination directory in the UI
 # TODO: Add a progress bar for the conversion process
-# TODO: Polish the UI and make it more appealing with Bosch colors 
+# TODO: Polish the UI and make it more appealing with Bosch colors
+
+# initial directory for the file explorer
+current_directory = os.path.join(os.path.join(os.environ['HOME']), 'Desktop')
+
 
 # browse the input file (opens a file dialog to check the file name)
 def browse_input_file():
@@ -21,7 +21,8 @@ def browse_input_file():
                                            title="Select a File",
                                            filetypes=(("Excel Files", "*.xlsx"),
                                                       ("Excel Macro Files", "*.xlsm"),))
-    print(f"Source={file_name}")
+    with open(resource_path("paths.txt"), "w") as file:
+        file.write(file_name + ";")
 
 
 # browse the output destination (opens a file dialog to check the directory name)
@@ -29,7 +30,8 @@ def browse_output_destination():
     global directory_name
     directory_name = filedialog.askdirectory(initialdir=current_directory,
                                              title="Select a Directory")
-    print(f"Output={directory_name}")
+    with open(resource_path("paths.txt"), "a") as file:
+        file.write(directory_name)
 
 
 # create the user interface
@@ -61,7 +63,7 @@ def create_ui():
     root.grid_rowconfigure(10, weight=1)
 
     # make the window non-resizable
-    root.resizable(0, 0)
+    root.resizable(0, 0)  # type: ignore
 
     button_source = Button(root,
                            text="Select Excel File",
