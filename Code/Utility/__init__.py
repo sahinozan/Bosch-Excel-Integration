@@ -101,16 +101,13 @@ def file_path_handler():
 
     # Validation will not be needed after the standalone executable
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
-        pipes_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
-            f"{os.sep}Data{os.sep}Cihazlar - Borular.xlsx"
-        types_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
-            f"{os.sep}Data{os.sep}Borular - Tipler.xlsx"
+        master_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
+            f"{os.sep}Data{os.sep}Master Data.xlsx"
     else:
-        pipes_path = os.getcwd() + f"{os.sep}Data{os.sep}Cihazlar - Borular.xlsx"
-        types_path = os.getcwd() + f"{os.sep}Data{os.sep}Borular - Tipler.xlsx"
+        master_path = os.getcwd() + f"{os.sep}Data{os.sep}Master Data.xlsx"
     try:
-        pipes = pd.read_excel(pipes_path)
-        types = pd.read_excel(types_path)
+        pipes = pd.read_excel(master_path, sheet_name="Cihaz - Boru - Miktar")
+        types = pd.read_excel(master_path, sheet_name="Boru - Tip")
     except FileNotFoundError:
         print("!!> File not found!")
         exit(0)
