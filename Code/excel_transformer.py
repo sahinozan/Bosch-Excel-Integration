@@ -7,7 +7,7 @@ import datetime
 warnings.filterwarnings("ignore")
 
 # control if the required Python version is installed
-python_version_control()
+# python_version_control()
 
 # control if the required packages are installed and install them if not
 package_control(packages=["pandas", "openpyxl", "numpy", "tkinter"])
@@ -107,11 +107,11 @@ df = df.set_index(("", "Hat")).rename_axis(None, axis=0)
 # convert work days columns to numeric values 
 df.iloc[:, 4:] = df.iloc[:, 4:].apply(pd.to_numeric, errors='coerce')
 
-# create the dataframe for the Excel pivotting (multi-level columns)
+# create the dataframe for the Excel pivoting (multi-level columns)
 df_pivot = df.sort_index(key=lambda x: (x.to_series().str[6:].astype("int64")))
 df_pivot = df_pivot.drop(columns=[('', 'Cihaz TTNr'), ('', 'Cihaz Aile'), ('', 'Tip')])
 
-# sum the values for the same pipe and shift (pivotting)
+# sum the values for the same pipe and shift (pivoting)
 df_pivot.index = df_pivot.index.str.split(' ').str[1]
 df_pivot = df_pivot.groupby([df_pivot.index, ("", "Boru TTNr")]).sum().sort_index(ascending=False)
 df_pivot = df_pivot.reset_index(level=1, drop=False)
