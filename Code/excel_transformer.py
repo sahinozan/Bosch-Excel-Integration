@@ -1,4 +1,3 @@
-from __future__ import annotations
 from Utility import *
 from sys import exit
 import warnings
@@ -6,10 +5,10 @@ import datetime
 
 warnings.filterwarnings("ignore")
 
-# control if the required Python version is installed
+# control if the required Python version is installed
 # python_version_control()
 
-# control if the required packages are installed and install them if not
+# control if the required packages are installed and install them if not
 package_control(packages=["pandas", "openpyxl", "numpy", "tkinter"])
 
 # import modules after checking if they exist in the environment
@@ -102,7 +101,7 @@ df = pd.concat([df.iloc[:, :-1], type_df], axis=1)
 df.insert(4, ('', 'Tip'), df.pop(('', 'Tip')))
 
 # dropped the index column name (will be filled later with openpyxl for better visuals)
-df = df.set_index(("", "Hat")).rename_axis(None, axis=0)
+df = df.set_index(("", "Hat")).rename_axis(axis=0)
 
 # convert work days columns to numeric values 
 df.iloc[:, 4:] = df.iloc[:, 4:].apply(pd.to_numeric, errors='coerce')

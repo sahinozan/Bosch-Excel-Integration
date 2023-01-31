@@ -17,11 +17,10 @@ def package_control(packages: list):
         if find_spec(package) is None:
             print(f"\n>>> Installing {package}...\n")
             check_call([sys.executable, '-m', 'pip', 'install', package,
-                       '--disable-pip-version-check'])
+                        '--disable-pip-version-check'])
 
 
 package_control(packages=["pandas", "openpyxl", "numpy"])
-
 
 # import modules after checking if they exist in the environment
 from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
@@ -31,15 +30,15 @@ from openpyxl.utils import get_column_letter
 import openpyxl
 import pandas as pd
 
-
 # Colors for Excel formatting
 redFill = PatternFill(start_color='FFFF0000',
                       end_color='FFFF0000',
                       fill_type='solid')
 
+
 # separators for different operating systems are used to make it compatible with all of them
-# directory separator = "/" for Linux and MacOS
-# directory separator = "\\" for Windows
+# directory separator = "/" for Linux and MacOS
+# directory separator = "\\" for Windows
 
 def file_path_handler():
     # validation added to fix VSCode issue (will be removed later)
@@ -58,7 +57,8 @@ def file_path_handler():
         if len(component) > 1:
             paths[component[0]] = component[1]
 
-    paths = dict(sorted(paths.items(), key=lambda item: item[0], reverse=True))
+    sorted_paths = sorted(paths.items(), key=lambda item: item[0], reverse=True)
+    paths = {key: path for key, path in sorted_paths}
 
     # input validation for file paths 
     # TODO: Find an elegant way to do this and integrate it with the UI
@@ -69,14 +69,14 @@ def file_path_handler():
         elif paths["Output"] == "":
             print("!!> You have not selected an output destination!")
             exit(0)
-    if "Source" in paths.keys() and not "Output" in paths.keys():
+    if "Source" in paths.keys() and "Output" not in paths.keys():
         if paths["Source"] == "":
             print("!!> You have not selected an Excel file and output destination!")
             exit(0)
         else:
             print("!!> You have not selected an output destination!")
             exit(0)
-    if "Output" in paths.keys() and not "Source" in paths.keys():
+    if "Output" in paths.keys() and "Source" not in paths.keys():
         if paths["Output"] == "":
             print("!!> You have not selected an Excel file and output destination!")
             exit(0)
@@ -91,7 +91,6 @@ def file_path_handler():
     source_dir, output_dir = paths["Source"], paths["Output"]
     source_file_name = source_dir.split("/")[-1]
     output_dir = output_dir + os.sep + source_file_name.split(".")[0] + "_output.xlsx"
-    
 
     try:
         source_file = pd.read_excel(source_dir)
@@ -102,7 +101,7 @@ def file_path_handler():
     # Validation will not be needed after the standalone executable
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
         master_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
-            f"{os.sep}Data{os.sep}Master Data.xlsx"
+                      f"{os.sep}Data{os.sep}Master Data.xlsx"
     else:
         master_path = os.getcwd() + f"{os.sep}Data{os.sep}Master Data.xlsx"
     try:
@@ -113,25 +112,6 @@ def file_path_handler():
         exit(0)
 
     return source_file, pipes, types, output_dir
-
-
-# TODO: This will be not needed when the script is converted to a standalone executable
-# Check if the Python version is 3.X.X (preferably, 3.11.X) if not raise an error
-def python_version_control() -> None:
-    if sys.version_info.major != 3:
-        raise SystemError("!!> Python version must be 3.X.X (preferably, 3.11.X)")
-    if sys.version_info.minor != 11:
-        print("??> This script is written for Python 3.11.X, "
-              "It may not work properly with other versions.\n"
-              "??> Do you still want to continue? (Y/N)")
-        user_input = input(">>> ")
-        if user_input == 'Y':
-            pass
-        elif user_input == 'N':
-            print(">>> Terminating...")
-            exit(0)
-        else:
-            raise SystemError("!!> Invalid input!")
 
 
 # General formatting such as column width, row height, and coloring
@@ -171,7 +151,7 @@ def general_excel_formatter(file_path: str) -> None:
     wb.save(file_path)
 
 
-# similar to general_excel_formatter but for the pivotted sheet
+# similar to general_excel_formatter but for the pivoted sheet
 def pivot_excel_formatter(file_path: str) -> None:
     wb = openpyxl.load_workbook(file_path)
 
@@ -206,7 +186,7 @@ def pivot_excel_formatter(file_path: str) -> None:
     wb.save(file_path)
 
 
-# Adds the version and date information to the excel file
+# Adds the version and date information to the Excel file
 def excel_version(file_path: str, file: pd.DataFrame) -> None:
     wb = openpyxl.load_workbook(file_path)
 
@@ -230,9 +210,8 @@ def excel_version(file_path: str, file: pd.DataFrame) -> None:
         wb.save(file_path)
 
 
-# checks if the excel file exists, if it does not then it creates it
+# checks if the Excel file exists, if it does not then it creates it
 def check_and_create_sheet(output_excel_file: str) -> None:
-
     print(">>>\n>>> Validating Excel Files...")
     try:
         if os.path.exists(output_excel_file):
@@ -256,10 +235,9 @@ def check_and_create_sheet(output_excel_file: str) -> None:
         exit(1)
 
 
-# writes the dataframes to the two sheets in the excel file (general-pivotted)
+# writes the dataframes to the two sheets in the Excel file (general-pivoted)
 def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
                    main_sheet_name="Sheet1", pivot_sheet_name="Sheet2") -> None:
-
     print(">>>\n>>> Conversion started...")
 
     try:

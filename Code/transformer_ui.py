@@ -6,6 +6,8 @@ import os
 current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
 file_name = ""
 directory_name = ""
+root = None
+
 
 # Reading the file from console will be replaced with a better solution later
 # TODO: Read file names without using console for the standalone executable
@@ -34,7 +36,6 @@ def browse_output_destination():
 
 # create the user interface
 def create_ui():
-
     # Create the root window
     global root
     root = Tk()
@@ -50,8 +51,8 @@ def create_ui():
     hs = root.winfo_screenheight()  # height of the screen
 
     # calculate x and y coordinates for the Tk root window
-    x = (ws/2) - (w/2)
-    y = (hs/2) - (h/2)
+    x = (ws / 2) - (w / 2)
+    y = (hs / 2) - (h / 2)
 
     # set the dimensions of the screen where the window will be displayed
     root.geometry('%dx%d+%d+%d' % (w, h, x, y))
@@ -61,7 +62,7 @@ def create_ui():
     root.grid_rowconfigure(10, weight=1)
 
     # make the window non-resizable
-    root.resizable(0, 0)
+    root.resizable(False, False)
 
     button_source = Button(root,
                            text="Select Excel File",
