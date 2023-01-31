@@ -5,9 +5,6 @@ import datetime
 
 warnings.filterwarnings("ignore")
 
-# control if the required Python version is installed
-# python_version_control()
-
 # control if the required packages are installed and install them if not
 package_control(packages=["pandas", "openpyxl", "numpy", "tkinter"])
 
@@ -34,8 +31,8 @@ shift_date = shift_date.apply(lambda x: f"{x.iloc[1]} - {x.iloc[0]}", axis=0)
 shift_dates = list(shift_date)
 
 # TTNr, Hat, Cihaz Aile, and work days columns
-indices = file.iloc[:, [0, 7, 8, 11]].reset_index() 
-work_days = file.iloc[:, 12: 33].reset_index() 
+indices = file.iloc[:, [0, 7, 8, 11]].reset_index()
+work_days = file.iloc[:, 12: 33].reset_index()
 sheet = pd.concat([indices, work_days], axis=1).iloc[2:, :]
 
 # drop the rows with NaN values in the TTNr column
@@ -78,7 +75,7 @@ indices = ["Hat", "Cihaz TTNr", "Cihaz Aile", "Boru TTNr"]
 df = pd.DataFrame(columns=pd.MultiIndex.from_product([shift_dates, shifts]),
                   index=range(sheet.shape[0]))
 df = pd.concat([pd.DataFrame(columns=pd.MultiIndex.from_product(
-                                 [indices, ["" for _ in range(len(indices))]])), df], axis=1)
+    [indices, ["" for _ in range(len(indices))]])), df], axis=1)
 
 # swap levels according to the initial Excel and drop the duplicated columns
 dates_df = df.iloc[:, 16:]
