@@ -1,6 +1,7 @@
 # Author: Ozan Şahin
 
-# Tasks to be done for standalone executable (in semester break):
+from Code.transformer_ui import show_error
+
 # TODO: Delete print statements
 # TODO: Integrate input validation with the UI
 
@@ -63,16 +64,16 @@ def file_path_handler():
     # Disabled for now!
     # input validation for file paths
     # TODO: Find an elegant way to do this and integrate it with the UI
-    # if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" in paths.keys():
-    #     if paths["Source1"] == "":
-    #         print("!!> You have not selected the first Excel file!")
-    #         exit(0)
-    #     elif paths["Source2"] == "":
-    #         print("!!> You have not selected the second Excel file!")
-    #         exit(0)
-    #     elif paths["Output"] == "":
-    #         print("!!> You have not selected an output destination!")
-    #         exit(0)
+    if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" in paths.keys():
+        if paths["Source1"] == "":
+            show_error("You have not selected the first Excel file!")
+            exit(0)
+        elif paths["Source2"] == "":
+            show_error("!!> You have not selected the second Excel file!")
+            exit(0)
+        elif paths["Output"] == "":
+            show_error("!!> You have not selected an output destination!")
+            exit(0)
     # if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" not in paths.keys():
     #     if paths["Source1"] == "" and paths["Source2"] == "":
     #         print("!!> You have not selected any Excel files and output destination!")
@@ -106,7 +107,7 @@ def file_path_handler():
         current_source_file = pd.read_excel(current_source_dir)
         past_source_file = pd.read_excel(past_source_dir)
     except FileNotFoundError:
-        print("!!> File not found!")
+        show_error("File not found!")
         exit(0)
 
     # Validation will not be needed after the standalone executable
@@ -119,7 +120,7 @@ def file_path_handler():
         pipes = pd.read_excel(master_path, sheet_name="Cihaz - Boru - Miktar")
         types = pd.read_excel(master_path, sheet_name="Boru - Tip")
     except FileNotFoundError:
-        print("!!> File not found!")
+        show_error("File not found!")
         exit(0)
 
     return current_source_file, past_source_file, pipes, types, output_dir
@@ -223,7 +224,6 @@ def excel_version(file_path: str, file: pd.DataFrame) -> None:
 
 # checks if the Excel file exists, if it does not then it creates it
 def check_and_create_sheet(output_excel_file: str) -> None:
-    print(">>>\n>>> Validating Excel Files...")
     try:
         if os.path.exists(output_excel_file):
             wb = openpyxl.load_workbook(output_excel_file)
@@ -234,35 +234,27 @@ def check_and_create_sheet(output_excel_file: str) -> None:
                 wb.create_sheet("Sheet2")
 
             wb.save(output_excel_file)
-
-        print(">>> Validation completed!")
     except PermissionError:
-        print("!!> Permission denied!")
-        print(">>> Terminating...")
+        show_error("Permission Error!")
         exit(1)
     except Exception as e:  # catch all other exceptions
-        print(f"!!> {e}")
-        print(">>> Terminating...")
+        show_error(f"{e}!")
         exit(1)
 
 
 # writes the dataframes to the two sheets in the Excel file (general-pivoted)
 def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
                    main_sheet_name="Sheet1", pivot_sheet_name="Sheet2") -> None:
-    print(">>>\n>>> Conversion started...")
-
+    print(">>> Conversion started...")
     try:
         with pd.ExcelWriter(output_excel_file, mode="w") as writer:
             main.to_excel(writer, main_sheet_name)
             pivot.to_excel(writer, pivot_sheet_name)
-
         print(">>> Conversion completed!")
     except PermissionError:
-        print("!!> Conversion failed!")
-        print("!!> Permission denied!")
-        print(">>> Terminating...")
+        show_error("Conversion Failed!")
+        show_error("Permission Error!")
         exit(1)
     except Exception as e:  # catch all other exceptions
-        print(f"!!> {e}")
-        print(">>> Terminating...")
+        show_error(f"{e}!")
         exit(1)

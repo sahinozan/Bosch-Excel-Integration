@@ -140,13 +140,13 @@ check_and_create_sheet(output_excel_file)
 write_to_excel(output_excel_file, main=df, pivot=df_pivot)
 
 try:
-    print(">>>\n>>> Excel Formatting started...")
+    # progress bar will be added!
+    # progress_bar.config(text="Excel Formatting started")
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file)
     excel_version(file_path=output_excel_file, file=first_file)
-    print(">>> Excel Formatting completed successfully!")
+    # progress_bar.config(text="Excel Formatting completed successfully")
 except PermissionError:
-    print(">>> Formatting failed!")
+    show_error("Formatting Failed!")
 finally:
-    print(">>> Terminating...")
     exit(0)
