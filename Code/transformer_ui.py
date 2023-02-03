@@ -6,6 +6,16 @@ import sys
 # initial directory for the file explorer
 current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
 first_file_name, second_file_name, directory_name = "", "", ""
+close = False
+
+
+def on_close():
+    global close
+    close = messagebox.askokcancel("Close", "Would you like to close the program?", icon="warning")
+    root.withdraw()
+    if close:
+        root.destroy()
+        exit(0)
 
 
 def default_font():
@@ -134,6 +144,11 @@ def create_ui():
 if __name__ == "__main__":
     # create the window
     root = Tk()
+
+    # root.overrideredirect(True)
+
+    # window close event
+    root.protocol('WM_DELETE_WINDOW', on_close)
 
     # create the labels
     input1_ent, input2_ent, output_ent, progress_bar = create_labels()
