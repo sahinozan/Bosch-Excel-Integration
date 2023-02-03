@@ -8,12 +8,6 @@ current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{o
 first_file_name, second_file_name, directory_name = "", "", ""
 
 
-# Reading the file from console will be replaced with a better solution later
-# TODO: Read file names without using console for the standalone executable
-# TODO: Add a progress bar for the conversion process
-# TODO: Polish the UI and make it more appealing with Bosch colors
-
-
 def default_font():
     if sys.platform == "win32":
         return "Arial", int(10)

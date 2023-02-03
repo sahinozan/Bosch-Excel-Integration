@@ -1,7 +1,5 @@
 # Author: Ozan Şahin
 
-# TODO: Delete print statements
-# TODO: Integrate input validation with the UI
 
 import pandas as pd
 import openpyxl
@@ -18,7 +16,7 @@ from transformer_ui import show_error
 from path_checker import path_validation
 
 
-# This will not be needed when the script is converted to a standalone executable
+# Check if the required packages are installed and install them if not
 def package_control(packages: list):
     for package in packages:
         if find_spec(package) is None:
@@ -29,17 +27,11 @@ def package_control(packages: list):
 
 package_control(packages=["pandas", "openpyxl", "numpy"])
 
-# import modules after checking if they exist in the environment
-
 # Colors for Excel formatting
 redFill = PatternFill(start_color='FFFF0000',
                       end_color='FFFF0000',
                       fill_type='solid')
 
-
-# separators for different operating systems are used to make it compatible with all of them
-# directory separator = "/" for Linux and MacOS
-# directory separator = "\\" for Windows
 
 def file_path_handler():
     # validation added to fix VSCode issue (will be removed later)
