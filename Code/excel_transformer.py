@@ -13,26 +13,37 @@ import numpy as np
 import pandas as pd
 
 # read data source files
-file, pipes, types, output_excel_file = file_path_handler()
+current_week, past_week, pipes, types, output_excel_file = file_path_handler()
 
+# Disabled for now!
 # check if the Excel file is in the desired format 
 # TODO: create a more robust format control mechanism
-if len(file.columns[file.isin(['Pazartesi']).any()]) == 0:
-    print(">>> Format of this Excel file is not desired. Use an appropriate formatted Excel file.")
-    exit(0)
+# if len(first_file.columns[first_file.isin(['Pazartesi']).any()]) == 0:
+#     print(">>> Format of the first Excel file is not desired. Use an appropriate formatted Excel file.")
+#     exit(0)
+# elif len(second_file.columns[first_file.isin(['Pazartesi']).any()]) == 0:
+#     print(">>> Format of the second Excel file is not desired. Use an appropriate formatted Excel file.")
+#     exit(0)
 
-#  get the date index range
-date_start_index = str(file.columns[file.isin(['Pazartesi']).any()][0]).split(' ')[1]
+current_week = current_week.iloc[:, : 24]
+past_week = pd.concat([past_week.iloc[:, :12], past_week.iloc[:, 21: 33]], axis=1)
+master_file = pd.merge(current_week, past_week, how="left", left_index=True, right_index=True, suffixes=("_1", "_2"))
+
+master_file.drop(master_file.iloc[:, 24:36], inplace=True, axis=1)
+master_file_columns = list(master_file.columns)
+master_file_columns = master_file_columns[:12] + master_file_columns[24:36] + master_file_columns[12:24]
+master_file = master_file[master_file_columns]
+first_file = master_file.copy()
 
 # get the shift dates and format them (e.g. 27 Dec 2022)
-shift_date = file.iloc[4:6, int(date_start_index): 31: 3].copy()
+shift_date = first_file.iloc[4:6, 12: 37: 3].copy()
 shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
 shift_date = shift_date.apply(lambda x: f"{x.iloc[1]} - {x.iloc[0]}", axis=0)
 shift_dates = list(shift_date)
 
 # TTNr, Hat, Cihaz Aile, and work days columns
-indices = file.iloc[:, [0, 7, 8, 11]].reset_index()
-work_days = file.iloc[:, 12: 33].reset_index()
+indices = first_file.iloc[:, [0, 7, 8, 11]].reset_index()
+work_days = first_file.iloc[:, 12: 36].reset_index()
 sheet = pd.concat([indices, work_days], axis=1).iloc[2:, :]
 
 # drop the rows with NaN values in the TTNr column
@@ -132,7 +143,7 @@ try:
     print(">>>\n>>> Excel Formatting started...")
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file)
-    excel_version(file_path=output_excel_file, file=file)
+    excel_version(file_path=output_excel_file, file=first_file)
     print(">>> Excel Formatting completed successfully!")
 except PermissionError:
     print(">>> Formatting failed!")

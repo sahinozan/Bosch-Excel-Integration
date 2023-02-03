@@ -1,9 +1,15 @@
-# Author: Ozan Sahin
+# Author: Ozan Şahin
 
 # Tasks to be done for standalone executable (in semester break):
 # TODO: Delete print statements
 # TODO: Integrate input validation with the UI
 
+import pandas as pd
+import openpyxl
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment
+from openpyxl.styles import PatternFill, Font
+from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
 from importlib.util import find_spec
 from subprocess import check_call, check_output
 from sys import exit
@@ -23,12 +29,6 @@ def package_control(packages: list):
 package_control(packages=["pandas", "openpyxl", "numpy"])
 
 # import modules after checking if they exist in the environment
-from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
-from openpyxl.styles import PatternFill, Font
-from openpyxl.styles import Alignment
-from openpyxl.utils import get_column_letter
-import openpyxl
-import pandas as pd
 
 # Colors for Excel formatting
 redFill = PatternFill(start_color='FFFF0000',
@@ -60,40 +60,51 @@ def file_path_handler():
     sorted_paths = sorted(paths.items(), key=lambda item: item[0], reverse=True)
     paths = {key: path for key, path in sorted_paths}
 
-    # input validation for file paths 
+    # Disabled for now!
+    # input validation for file paths
     # TODO: Find an elegant way to do this and integrate it with the UI
-    if "Source" in paths.keys() and "Output" in paths.keys():
-        if paths["Source"] == "":
-            print("!!> You have not selected an Excel file!")
-            exit(0)
-        elif paths["Output"] == "":
-            print("!!> You have not selected an output destination!")
-            exit(0)
-    if "Source" in paths.keys() and "Output" not in paths.keys():
-        if paths["Source"] == "":
-            print("!!> You have not selected an Excel file and output destination!")
-            exit(0)
-        else:
-            print("!!> You have not selected an output destination!")
-            exit(0)
-    if "Output" in paths.keys() and "Source" not in paths.keys():
-        if paths["Output"] == "":
-            print("!!> You have not selected an Excel file and output destination!")
-            exit(0)
-        else:
-            print("!!> You have not selected an Excel file!")
-            exit(0)
-    if "Output" not in paths.keys() and "Source" not in paths.keys():
-        print("!!> You have not selected an Excel file and output destination!")
-        exit(0)
+    # if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" in paths.keys():
+    #     if paths["Source1"] == "":
+    #         print("!!> You have not selected the first Excel file!")
+    #         exit(0)
+    #     elif paths["Source2"] == "":
+    #         print("!!> You have not selected the second Excel file!")
+    #         exit(0)
+    #     elif paths["Output"] == "":
+    #         print("!!> You have not selected an output destination!")
+    #         exit(0)
+    # if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" not in paths.keys():
+    #     if paths["Source1"] == "" and paths["Source2"] == "":
+    #         print("!!> You have not selected any Excel files and output destination!")
+    #         exit(0)
+    #     elif paths["Source1"] == "":
+    #         print("!!> You have not selected the first Excel file and output destination!")
+    #         exit(0)
+    #     elif paths["Source2"] == "":
+    #         print("!!> You have not selected the second Excel file and output destination!")
+    #         exit(0)
+    #     else:
+    #         print("!!> You have not selected an output destination!")
+    #         exit(0)
+    # if "Output" in paths.keys() and "Source1" not in paths.keys():
+    #     if paths["Output"] == "":
+    #         print("!!> You have not selected an Excel file and output destination!")
+    #         exit(0)
+    #     else:
+    #         print("!!> You have not selected an Excel file!")
+    #         exit(0)
+    # if "Output" not in paths.keys() and "Source1" not in paths.keys():
+    #     print("!!> You have not selected an Excel file and output destination!")
+    #     exit(0)
 
     # create output directory name from the source file path
-    source_dir, output_dir = paths["Source"], paths["Output"]
-    source_file_name = source_dir.split("/")[-1]
-    output_dir = output_dir + os.sep + source_file_name.split(".")[0] + "_output.xlsx"
+    current_source_dir, past_source_dir, output_dir = paths["Source1"], paths["Source2"], paths["Output"]
+    current_source_file_name = current_source_dir.split("/")[-1]
+    output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
 
     try:
-        source_file = pd.read_excel(source_dir)
+        current_source_file = pd.read_excel(current_source_dir)
+        past_source_file = pd.read_excel(past_source_dir)
     except FileNotFoundError:
         print("!!> File not found!")
         exit(0)
@@ -111,7 +122,7 @@ def file_path_handler():
         print("!!> File not found!")
         exit(0)
 
-    return source_file, pipes, types, output_dir
+    return current_source_file, past_source_file, pipes, types, output_dir
 
 
 # General formatting such as column width, row height, and coloring
@@ -138,7 +149,7 @@ def general_excel_formatter(file_path: str) -> None:
     dim_holder['E'] = ColumnDimension(ws1, min=5, max=5, width=18)
 
     # add filter
-    ws1.auto_filter.ref = "A2:Z2"
+    ws1.auto_filter.ref = "A2:AC2"
 
     # highlight the version and date cells
     ws1['A1'].fill = redFill
@@ -173,7 +184,7 @@ def pivot_excel_formatter(file_path: str) -> None:
     dim_holder['C'] = ColumnDimension(ws2, min=3, max=3, width=18)
 
     # add filter
-    ws2.auto_filter.ref = "A2:X2"
+    ws2.auto_filter.ref = "A2:AA2"
 
     # highlight the version and date cells
     ws2['A1'].fill = redFill

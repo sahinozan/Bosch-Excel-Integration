@@ -4,7 +4,8 @@ import os
 
 # initial directory for the file explorer
 current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
-file_name = ""
+first_file_name = ""
+second_file_name = ""
 directory_name = ""
 root = None
 
@@ -14,16 +15,25 @@ root = None
 # TODO: Add a text bar for the selected input file directory in the UI
 # TODO: Add a text bar for the selected destination directory in the UI
 # TODO: Add a progress bar for the conversion process
-# TODO: Polish the UI and make it more appealing with Bosch colors 
+# TODO: Polish the UI and make it more appealing with Bosch colors
 
 # browse the input file (opens a file dialog to check the file name)
-def browse_input_file():
-    global file_name
-    file_name = filedialog.askopenfilename(initialdir=current_directory,
-                                           title="Select a File",
-                                           filetypes=(("Excel Files", "*.xlsx"),
-                                                      ("Excel Macro Files", "*.xlsm"),))
-    print(f"Source={file_name}")
+def browse_first_input_file():
+    global first_file_name
+    first_file_name = filedialog.askopenfilename(initialdir=current_directory,
+                                                 title="Select a File",
+                                                 filetypes=(("Excel Files", "*.xlsx"),
+                                                            ("Excel Macro Files", "*.xlsm"),))
+    print(f"Source1={first_file_name}")
+
+
+def browse_second_input_file():
+    global second_file_name
+    second_file_name = filedialog.askopenfilename(initialdir=current_directory,
+                                                  title="Select a File",
+                                                  filetypes=(("Excel Files", "*.xlsx"),
+                                                             ("Excel Macro Files", "*.xlsm"),))
+    print(f"Source2={second_file_name}")
 
 
 # browse the output destination (opens a file dialog to check the directory name)
@@ -44,7 +54,7 @@ def create_ui():
     root.title('Excel File Explorer')
 
     w = 300  # width for the Tk root
-    h = 200  # height for the Tk root
+    h = 267  # height for the Tk root
 
     # get screen width and height
     ws = root.winfo_screenwidth()  # width of the screen
@@ -64,9 +74,13 @@ def create_ui():
     # make the window non-resizable
     root.resizable(False, False)
 
-    button_source = Button(root,
-                           text="Select Excel File",
-                           command=browse_input_file)
+    button_first_source = Button(root,
+                                 text="Select the Next Week Excel File",
+                                 command=browse_first_input_file)
+
+    button_second_source = Button(root,
+                                  text="Select the Current Week Excel File",
+                                  command=browse_second_input_file)
 
     button_output = Button(root,
                            text="Select Output Destination",
@@ -76,14 +90,17 @@ def create_ui():
                          text="Start Transformation",
                          command=root.destroy)
 
-    button_source.pack(side=TOP, anchor="center",
-                       expand=True, fill="both", padx=10, pady=5)
+    button_first_source.pack(side=TOP, anchor="center",
+                             expand=True, fill="both", padx=10, pady=3)
+
+    button_second_source.pack(side=TOP, anchor="center",
+                              expand=True, fill="both", padx=10, pady=3)
 
     button_output.pack(side=TOP, anchor="center",
-                       expand=True, fill="both", padx=10, pady=5)
+                       expand=True, fill="both", padx=10, pady=3)
 
     button_exit.pack(side=BOTTOM, anchor="center",
-                     expand=True, fill="both", padx=10, pady=5)
+                     expand=True, fill="both", padx=10, pady=3)
 
     # Let the window wait for any events
     root.mainloop()
