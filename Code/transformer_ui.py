@@ -64,9 +64,10 @@ def browse_output_destination():
 
 
 def show_error(error_message):
-    root.withdraw()
+    message_window = Tk()
+    message_window.withdraw()
     messagebox.showerror(title="Error", message=error_message, icon="error")
-    root.deiconify()
+    message_window.destroy()
 
 
 # create the user interface

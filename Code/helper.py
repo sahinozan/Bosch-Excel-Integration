@@ -15,6 +15,7 @@ from sys import exit
 import os
 import sys
 from transformer_ui import show_error
+from path_checker import path_validation
 
 
 # This will not be needed when the script is converted to a standalone executable
@@ -60,42 +61,8 @@ def file_path_handler():
     sorted_paths = sorted(paths.items(), key=lambda item: item[0], reverse=True)
     paths = {key: path for key, path in sorted_paths}
 
-    # Disabled for now!
     # input validation for file paths
-    # TODO: Find an elegant way to do this and integrate it with the UI
-    if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" in paths.keys():
-        if paths["Source1"] == "":
-            show_error("You have not selected the first Excel file!")
-            exit(0)
-        elif paths["Source2"] == "":
-            show_error("!!> You have not selected the second Excel file!")
-            exit(0)
-        elif paths["Output"] == "":
-            show_error("!!> You have not selected an output destination!")
-            exit(0)
-    # if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" not in paths.keys():
-    #     if paths["Source1"] == "" and paths["Source2"] == "":
-    #         print("!!> You have not selected any Excel files and output destination!")
-    #         exit(0)
-    #     elif paths["Source1"] == "":
-    #         print("!!> You have not selected the first Excel file and output destination!")
-    #         exit(0)
-    #     elif paths["Source2"] == "":
-    #         print("!!> You have not selected the second Excel file and output destination!")
-    #         exit(0)
-    #     else:
-    #         print("!!> You have not selected an output destination!")
-    #         exit(0)
-    # if "Output" in paths.keys() and "Source1" not in paths.keys():
-    #     if paths["Output"] == "":
-    #         print("!!> You have not selected an Excel file and output destination!")
-    #         exit(0)
-    #     else:
-    #         print("!!> You have not selected an Excel file!")
-    #         exit(0)
-    # if "Output" not in paths.keys() and "Source1" not in paths.keys():
-    #     print("!!> You have not selected an Excel file and output destination!")
-    #     exit(0)
+    path_validation(paths)
 
     # create output directory name from the source file path
     current_source_dir, past_source_dir, output_dir = paths["Source1"], paths["Source2"], paths["Output"]
