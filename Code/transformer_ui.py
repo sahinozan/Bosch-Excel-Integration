@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog, messagebox
 import os
+import sys
 
 # initial directory for the file explorer
 current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
@@ -13,11 +14,18 @@ first_file_name, second_file_name, directory_name = "", "", ""
 # TODO: Polish the UI and make it more appealing with Bosch colors
 
 
+def default_font():
+    if sys.platform == "win32":
+        return "Arial", int(10)
+    elif sys.platform == "darwin":
+        return "Courier", int(13)
+
+
 def create_labels():
-    input1 = Label(root, font=30, borderwidth=2, anchor="center", relief="ridge", wraplength=550)
-    input2 = Label(root, font=30, borderwidth=2, anchor="center", relief="ridge", wraplength=550)
-    output = Label(root, font=30, borderwidth=2, anchor="center", relief="ridge", wraplength=550)
-    progress = Label(root, font=30, borderwidth=2, anchor="center", relief="ridge",
+    input1 = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge", wraplength=550)
+    input2 = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge", wraplength=550)
+    output = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge", wraplength=550)
+    progress = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge",
                      text="Progress bar is not implemented yet")
     return input1, input2, output, progress
 
@@ -96,18 +104,22 @@ def create_ui():
 
     button_first_source = Button(root,
                                  text="Next Week",
+                                 font=(default_font()),
                                  command=browse_first_input_file)
 
     button_second_source = Button(root,
                                   text="Past Week",
+                                  font=(default_font()),
                                   command=browse_second_input_file)
 
     button_output = Button(root,
                            text="Output Destination",
+                           font=(default_font()),
                            command=browse_output_destination)
 
     button_exit = Button(root,
                          text="Start Transformation",
+                         font=(default_font()),
                          command=root.destroy)
 
     # Place the buttons and text boxes in the window

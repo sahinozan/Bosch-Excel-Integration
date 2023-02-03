@@ -1,7 +1,5 @@
 # Author: Ozan Şahin
 
-from Code.transformer_ui import show_error
-
 # TODO: Delete print statements
 # TODO: Integrate input validation with the UI
 
@@ -16,6 +14,7 @@ from subprocess import check_call, check_output
 from sys import exit
 import os
 import sys
+from transformer_ui import show_error
 
 
 # This will not be needed when the script is converted to a standalone executable
