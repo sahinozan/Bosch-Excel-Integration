@@ -1,6 +1,5 @@
 # Author: Ozan Şahin
 
-
 import pandas as pd
 import openpyxl
 from openpyxl.utils import get_column_letter
@@ -9,7 +8,6 @@ from openpyxl.styles import PatternFill, Font
 from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
 from importlib.util import find_spec
 from subprocess import check_call, check_output
-from sys import exit
 import os
 import sys
 from transformer_ui import show_error
@@ -20,7 +18,6 @@ from path_checker import path_validation
 def package_control(packages: list):
     for package in packages:
         if find_spec(package) is None:
-            print(f"\n>>> Installing {package}...\n")
             check_call([sys.executable, '-m', 'pip', 'install', package,
                         '--disable-pip-version-check'])
 
@@ -34,7 +31,6 @@ redFill = PatternFill(start_color='FFFF0000',
 
 
 def file_path_handler():
-    # validation added to fix VSCode issue (will be removed later)
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
         directory = check_output(["python", f"{os.getcwd()}{os.sep}transformer_ui.py"])
     else:
@@ -66,7 +62,7 @@ def file_path_handler():
         past_source_file = pd.read_excel(past_source_dir)
     except FileNotFoundError:
         show_error("File not found!")
-        exit(0)
+        sys.exit(0)
 
     # Validation will not be needed after the standalone executable
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
@@ -79,7 +75,7 @@ def file_path_handler():
         types = pd.read_excel(master_path, sheet_name="Boru - Tip")
     except FileNotFoundError:
         show_error("File not found!")
-        exit(0)
+        sys.exit(0)
 
     return current_source_file, past_source_file, pipes, types, output_dir
 
@@ -194,25 +190,23 @@ def check_and_create_sheet(output_excel_file: str) -> None:
             wb.save(output_excel_file)
     except PermissionError:
         show_error("Permission Error!")
-        exit(1)
+        sys.exit(0)
     except Exception as e:  # catch all other exceptions
         show_error(f"{e}!")
-        exit(1)
+        sys.exit(0)
 
 
 # writes the dataframes to the two sheets in the Excel file (general-pivoted)
 def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
                    main_sheet_name="Sheet1", pivot_sheet_name="Sheet2") -> None:
-    print(">>> Conversion started...")
     try:
         with pd.ExcelWriter(output_excel_file, mode="w") as writer:
             main.to_excel(writer, main_sheet_name)
             pivot.to_excel(writer, pivot_sheet_name)
-        print(">>> Conversion completed!")
     except PermissionError:
         show_error("Conversion Failed!")
         show_error("Permission Error!")
-        exit(1)
+        sys.exit(0)
     except Exception as e:  # catch all other exceptions
         show_error(f"{e}!")
-        exit(1)
+        sys.exit(0)

@@ -3,155 +3,141 @@ from tkinter import filedialog, messagebox
 import os
 import sys
 
-# initial directory for the file explorer
-current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
-first_file_name, second_file_name, directory_name = "", "", ""
-close = False
 
-
-def on_close():
-    global close
-    close = messagebox.askokcancel("Close", "Would you like to close the program?", icon="warning")
-    root.withdraw()
-    if close:
-        root.destroy()
-        exit(0)
-
-
-def default_font():
-    if sys.platform == "win32":
-        return "Arial", int(10)
-    elif sys.platform == "darwin":
-        return "Courier", int(13)
-
-
-def create_labels():
-    input1 = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge", wraplength=550)
-    input2 = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge", wraplength=550)
-    output = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge", wraplength=550)
-    progress = Label(root, font=(default_font()), borderwidth=2, anchor="center", relief="ridge",
-                     text="Progress bar is not implemented yet")
-    return input1, input2, output, progress
-
-
-# browse the input file (opens a file dialog to check the file name)
-def browse_first_input_file():
-    global first_file_name
-    first_file_name = filedialog.askopenfilename(initialdir=current_directory,
-                                                 title="Select a File",
-                                                 filetypes=(("Excel Files", "*.xlsx"),
-                                                            ("Excel Macro Files", "*.xlsm"),))
-    print(f"Source1={first_file_name}")
-    if first_file_name != "":
-        input1_ent.config(text=first_file_name)
-
-
-def browse_second_input_file():
-    global second_file_name
-    second_file_name = filedialog.askopenfilename(initialdir=current_directory,
-                                                  title="Select a File",
-                                                  filetypes=(("Excel Files", "*.xlsx"),
-                                                             ("Excel Macro Files", "*.xlsm"),))
-    print(f"Source2={second_file_name}")
-    if second_file_name != "":
-        input2_ent.config(text=second_file_name)
-
-
-# browse the output destination (opens a file dialog to check the directory name)
-def browse_output_destination():
-    global directory_name
-    directory_name = filedialog.askdirectory(initialdir=current_directory,
-                                             title="Select a Directory")
-    print(f"Output={directory_name}")
-    if directory_name != "":
-        output_ent.config(text=directory_name)
-
-
-def show_error(error_message):
+def show_error(message):
     message_window = Tk()
     message_window.withdraw()
-    messagebox.showerror(title="Error", message=error_message, icon="error")
+    messagebox.showerror("Error", message, icon="error")
     message_window.destroy()
+    sys.exit(0)
 
 
-# create the user interface
-def create_ui():
-    # Set window title
-    root.title('Excel File Explorer')
+class TransformerUI:
+    def __init__(self, root_window):
+        self.current_directory = os.path.dirname(os.getcwd() + f"{os.sep}Data{os.sep}Source{os.sep}")
+        self.first_file_name, self.second_file_name, self.directory_name = "", "", ""
+        self.close = False
+        self.progress_bar = None
+        self.root = root_window
+        self.window_configuration()
+        self.grid_configuration()
+        self.input1, self.input2, self.output, self.progress = self.create_labels()
+        self.input1_button, self.input2_button, self.output_button, self.transform_button = self.create_buttons()
+        self.place_components()
 
-    w = 750  # width for the Tk root
-    h = 300  # height for the Tk root
+    def on_close(self):
+        self.close = messagebox.askokcancel("Close", "Would you like to close the program?",
+                                            icon="warning", parent=root)
+        if self.close:
+            self.root.destroy()
+            sys.exit(0)
 
-    # get screen width and height
-    ws = root.winfo_screenwidth()  # width of the screen
-    hs = root.winfo_screenheight()  # height of the screen
+    @staticmethod
+    def default_font():
+        if sys.platform == "win32":
+            return "Arial", int(10)
+        elif sys.platform == "darwin":
+            return "Courier", int(13)
 
-    # calculate x and y coordinates for the Tk root window
-    x = (ws / 2) - (w / 2)
-    y = (hs / 2) - (h / 2)
+    def create_buttons(self):
+        input1_button = Button(self.root, text="Next Week", font=(self.default_font()),
+                               command=self.browse_first_input_file)
+        input2_button = Button(self.root, text="Past Week", font=(self.default_font()),
+                               command=self.browse_second_input_file)
+        output_button = Button(self.root, text="Output Destination", font=(self.default_font()),
+                               command=self.browse_output_directory)
+        transform_button = Button(self.root, text="Transform", font=(self.default_font()),
+                                  command=root.destroy)
+        return input1_button, input2_button, output_button, transform_button
 
-    # set the dimensions of the screen where the window will be displayed
-    root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+    def create_labels(self):
+        input1 = Label(self.root, font=(self.default_font()), borderwidth=2, anchor="center",
+                       relief="ridge", wraplength=550)
+        input2 = Label(self.root, font=(self.default_font()), borderwidth=2, anchor="center",
+                       relief="ridge", wraplength=550)
+        output = Label(self.root, font=(self.default_font()), borderwidth=2, anchor="center",
+                       relief="ridge", wraplength=550)
+        progress = Label(self.root, font=(self.default_font()), borderwidth=2, anchor="center",
+                         relief="ridge", text="Progress bar is not implemented yet")
+        return input1, input2, output, progress
 
-    # center the buttons and window
-    root.grid_columnconfigure(0, weight=0)
-    root.grid_columnconfigure(1, weight=2)
+    def place_components(self):
+        self.input1_button.grid(row=0, column=0, padx=2, pady=1, sticky="nsew")
+        self.input1.grid(row=0, column=1, padx=5, pady=4, sticky="nsew")
 
-    # make the windows expandable
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_rowconfigure(1, weight=1)
-    root.grid_rowconfigure(2, weight=1)
-    root.grid_rowconfigure(3, weight=1)
-    root.grid_rowconfigure(4, weight=1)
+        self.input2_button.grid(row=1, column=0, padx=2, pady=1, sticky="nsew")
+        self.input2.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-    # make the window non-resizable
-    root.resizable(False, False)
+        self.output_button.grid(row=2, column=0, padx=2, pady=1, sticky="nsew")
+        self.output.grid(row=2, column=1, padx=5, pady=4, sticky="nsew")
 
-    button_first_source = Button(root,
-                                 text="Next Week",
-                                 font=(default_font()),
-                                 command=browse_first_input_file)
+        self.transform_button.grid(row=3, columnspan=2, padx=3, pady=2, sticky="nsew")
+        self.progress.grid(row=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-    button_second_source = Button(root,
-                                  text="Past Week",
-                                  font=(default_font()),
-                                  command=browse_second_input_file)
+    def grid_configuration(self):
+        # center the buttons and window
+        self.root.grid_columnconfigure(0, weight=0)
+        self.root.grid_columnconfigure(1, weight=2)
 
-    button_output = Button(root,
-                           text="Output Destination",
-                           font=(default_font()),
-                           command=browse_output_destination)
+        # make the windows expandable
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_rowconfigure(2, weight=1)
+        self.root.grid_rowconfigure(3, weight=1)
+        self.root.grid_rowconfigure(4, weight=1)
 
-    button_exit = Button(root,
-                         text="Start Transformation",
-                         font=(default_font()),
-                         command=root.destroy)
+    def window_configuration(self):
+        self.root.title("Excel File Explorer")
 
-    # Place the buttons and text boxes in the window
-    button_first_source.grid(row=0, column=0, sticky="nsew", pady=1, padx=2)
-    input1_ent.grid(row=0, column=1, sticky="nsew", pady=4, padx=5)
-    button_second_source.grid(row=1, column=0, sticky="nsew", pady=1, padx=2)
-    input2_ent.grid(row=1, column=1, sticky="nsew", pady=4, padx=5)
-    button_output.grid(row=2, column=0, sticky="nsew", pady=1, padx=2)
-    output_ent.grid(row=2, column=1, sticky="nsew", pady=4, padx=5)
-    button_exit.grid(row=3, columnspan=2, sticky="nsew", pady=3, padx=2)
-    progress_bar.grid(row=4, columnspan=2, sticky="nsew", pady=5, padx=5)
+        # make the window non-resizable
+        self.root.resizable(False, False)
 
-    # Let the window wait for any events
-    root.mainloop()
+        # make the window close when the user clicks the X button
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        # root.overrideredirect(True)
+
+        w = 750  # width for the Tk root
+        h = 300  # height for the Tk root
+
+        # get screen width and height
+        ws = self.root.winfo_screenwidth()  # width of the screen
+        hs = self.root.winfo_screenheight()  # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = (ws / 2) - (w / 2)
+        y = (hs / 2) - (h / 2)
+
+        # set the dimensions of the screen where the window will be displayed
+        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+    def browse_first_input_file(self):
+        self.first_file_name = filedialog.askopenfilename(initialdir=self.current_directory,
+                                                          title="Select a File",
+                                                          filetypes=(("Excel Files", "*.xlsx"),
+                                                                     ("Excel Macro Files", "*.xlsm"),))
+        print(f"Source1={self.first_file_name}")
+        if self.first_file_name != "":
+            self.input1.config(text=self.first_file_name)
+
+    def browse_second_input_file(self):
+        self.second_file_name = filedialog.askopenfilename(initialdir=self.current_directory,
+                                                           title="Select a File",
+                                                           filetypes=(("Excel Files", "*.xlsx"),
+                                                                      ("Excel Macro Files", "*.xlsm"),))
+        print(f"Source2={self.second_file_name}")
+        if self.second_file_name != "":
+            self.input2.config(text=self.second_file_name)
+
+    def browse_output_directory(self):
+        self.directory_name = filedialog.askdirectory(initialdir=self.current_directory,
+                                                      title="Select a Directory")
+        print(f"Output={self.directory_name}")
+        if self.directory_name != "":
+            self.output.config(text=self.directory_name)
 
 
 if __name__ == "__main__":
-    # create the window
     root = Tk()
-
-    # root.overrideredirect(True)
-
-    # window close event
-    root.protocol('WM_DELETE_WINDOW', on_close)
-
-    # create the labels
-    input1_ent, input2_ent, output_ent, progress_bar = create_labels()
-
-    # create the user interface
-    create_ui()
+    app = TransformerUI(root)
+    root.mainloop()

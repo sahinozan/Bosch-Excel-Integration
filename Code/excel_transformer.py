@@ -1,5 +1,4 @@
 from helper import *
-from sys import exit
 import warnings
 import datetime
 
@@ -19,11 +18,11 @@ current_week, past_week, pipes, types, output_excel_file = file_path_handler()
 # check if the Excel file is in the desired format 
 # TODO: create a more robust format control mechanism
 # if len(first_file.columns[first_file.isin(['Pazartesi']).any()]) == 0:
-#     print(">>> Format of the first Excel file is not desired. Use an appropriate formatted Excel file.")
-#     exit(0)
+#     show_error("Format of the first Excel file is not desired. Use an appropriate formatted Excel file.")
+#     sys.exit(0)
 # elif len(second_file.columns[first_file.isin(['Pazartesi']).any()]) == 0:
-#     print(">>> Format of the second Excel file is not desired. Use an appropriate formatted Excel file.")
-#     exit(0)
+#     show_error("Format of the second Excel file is not desired. Use an appropriate formatted Excel file.")
+#     sys.exit(0)
 
 current_week = current_week.iloc[:, : 24]
 past_week = pd.concat([past_week.iloc[:, :12], past_week.iloc[:, 21: 33]], axis=1)
@@ -140,13 +139,10 @@ check_and_create_sheet(output_excel_file)
 write_to_excel(output_excel_file, main=df, pivot=df_pivot)
 
 try:
-    # progress bar will be added!
-    # progress_bar.config(text="Excel Formatting started")
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file)
     excel_version(file_path=output_excel_file, file=first_file)
-    # progress_bar.config(text="Excel Formatting completed successfully")
 except PermissionError:
     show_error("Formatting Failed!")
 finally:
-    exit(0)
+    sys.exit(0)
