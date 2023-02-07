@@ -27,7 +27,7 @@ class TransformerUI:
 
     def on_close(self):
         self.close = messagebox.askokcancel("Close", "Would you like to close the program?",
-                                            icon="warning", parent=root)
+                                            icon="warning", parent=self.root)
         if self.close:
             self.root.destroy()
             sys.exit(0)
@@ -47,7 +47,7 @@ class TransformerUI:
         output_button = Button(self.root, text="Output Destination", font=(self.default_font()),
                                command=self.browse_output_directory)
         transform_button = Button(self.root, text="Transform", font=(self.default_font()),
-                                  command=root.destroy)
+                                  command=self.root.destroy)
         return input1_button, input2_button, output_button, transform_button
 
     def create_labels(self):
@@ -87,7 +87,7 @@ class TransformerUI:
         self.root.grid_rowconfigure(4, weight=1)
 
     def window_configuration(self):
-        self.root.title("Excel File Explorer")
+        self.root.title("Excel Converter")
 
         # make the window non-resizable
         self.root.resizable(False, False)
