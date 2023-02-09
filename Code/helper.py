@@ -16,8 +16,14 @@ from transformer_ui import show_error
 from path_checker import path_validation
 
 
-# Check if the required packages are installed and install them if not
-def package_control(packages: list):
+def package_control(packages: list) -> None:
+    """
+    Check if the required packages are installed and install them if not.
+    For each non-installed package, pip install command will be executed.
+
+    Args:
+        packages: List of packages to be checked
+    """
     for package in packages:
         if find_spec(package) is None:
             check_call([sys.executable, '-m', 'pip', 'install', package,
@@ -32,7 +38,18 @@ redFill = PatternFill(start_color='FFFF0000',
                       fill_type='solid')
 
 
-def file_path_handler():
+def file_path_handler() -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str):
+    """
+    Get the file paths from the UI, convert the files into dataframes.
+
+    Returns:
+        A tuple which contains the following:
+        current_source_file: A dataframe of the current week's production plan
+        past_source_file: A dataframe of the next week's production plan
+        pipes: A dataframe that contains the amount of pipes for each device
+        types: A dataframe of the pipe types (e.g. hydraulic, spare, etc.)
+        output_dir: A string of the output directory
+    """
     # Run the UI and get the file paths
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
         directory = check_output(["python", f"{os.getcwd()}{os.sep}transformer_ui.py"])
@@ -83,14 +100,39 @@ def file_path_handler():
     return current_source_file, past_source_file, pipes, types, output_dir
 
 
-def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) -> [pd.DataFrame, pd.DataFrame]:
+def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) -> (pd.DataFrame,
+                                                                             pd.DataFrame, pd.DataFrame):
+    """
+    Parse the source files and return the dataframes.
+
+    Args:
+        n_week_df: A dataframe of the next week's production plan
+        c_week_df: A dataframe of the current week's production plan
+
+    Returns:
+        A tuple which contains the parsed versions of both week's production plans
+    """
     c_week_df = pd.concat([c_week_df.iloc[:, :12], c_week_df.iloc[:, 21: 33]], axis=1)
     n_week_df = n_week_df.iloc[:, : 24]
     return n_week_df, c_week_df
 
 
 def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd.DataFrame,
-                            is_next_week=False):
+                            is_next_week=False) -> pd.DataFrame | (pd.DataFrame, pd.DataFrame):
+    """
+    Filters the rows with missing values and eliminates the unnecessary columns in the main dataframe.
+    Then, it merges the main dataframe with the pipes and types dataframes.
+    As a result, the final dataframe contains the type and the amount of pipes for each device.
+
+    Args:
+        raw_df: Main dataframe that contains the raw data (e.g. the current week's production plan)
+        pipes: A dataframe that contains the amount of pipes for each device
+        types: A dataframe of the pipe types (e.g. hydraulic, spare, etc.)
+        is_next_week: A boolean value that indicates whether the dataframe is for the next week or not
+
+    Returns:
+        A dataframe with multi-level columns
+    """
     # get the shift dates and format them (e.g. 27 Dec 2022)
     shift_date = raw_df.iloc[4:6, 12: 37: 3].copy()
     shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
@@ -179,6 +221,16 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
 
 
 def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFrame:
+    """
+    Does pivoting operation for the master dataframe. The pivoting combines the same pipes in the same shift.
+
+    Args:
+        df_initial: The master dataframe that contains the type and the amount of pipes for each device
+        types: A dataframe that contains the types of the pipes (e.g. hydraulic, spare, etc.)
+
+    Returns:
+        A dataframe that contains the pivoted values
+    """
     # create the dataframe for the Excel pivoting (multi-level columns)
     df_pivoted = df_initial.sort_index(key=lambda x: (x.to_series().str[6:].astype("int64")))
     df_pivoted = df_pivoted.drop(columns=[('', 'Cihaz TTNr'), ('', 'Cihaz Aile'), ('', 'Tip')])
@@ -202,6 +254,12 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
 
 
 def excel_format_validate(list_of_dfs: [pd.DataFrame]) -> None:
+    """
+    Checks the format of the given Excel file. If the format is not correct, the program will be terminated.
+
+    Args:
+        list_of_dfs: A list of dataframes of the Excel files
+    """
     for i in list_of_dfs:
         if len(i.columns[i.isin(['Pazartesi']).any()]) == 0:
             show_error("Format of the first Excel file is not desired. Use an appropriate formatted Excel file.")
@@ -210,6 +268,16 @@ def excel_format_validate(list_of_dfs: [pd.DataFrame]) -> None:
 
 
 def detect_devices_without_pipes(source_df: pd.DataFrame, output_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Detects the devices that do not have any pipe information in the pipes Excel file.
+
+    Args:
+        source_df: Initial version of the main Excel file (before formatting)
+        output_df: Final version of the main Excel file (after formatting)
+
+    Returns:
+        A dataframe that contains the devices without pipes
+    """
     source_devices = set(source_df["MOE1 Üretim Sıralaması"].astype(str).unique())
     output_devices = set(output_df[("", "Cihaz TTNr")].astype(str).unique())
     non_existing_devices = list(source_devices - output_devices)
@@ -218,9 +286,15 @@ def detect_devices_without_pipes(source_df: pd.DataFrame, output_df: pd.DataFram
     return df_empty
 
 
-# General formatting such as column width, row height, and coloring
-# Adds auto-filter to every column except the first one (index column)
 def general_excel_formatter(file_path: str, sheet_name) -> None:
+    """
+    Does general formatting such as column width, row height, and coloring.
+    Adds auto-filter to every column except the index column.
+
+    Args:
+        file_path: The path of the Excel file
+        sheet_name: The name of the sheet that will be formatted
+    """
     wb = openpyxl.load_workbook(file_path)
 
     ws1 = wb[sheet_name]
@@ -256,8 +330,14 @@ def general_excel_formatter(file_path: str, sheet_name) -> None:
     wb.save(file_path)
 
 
-# similar to general_excel_formatter but for the pivoted sheet
 def pivot_excel_formatter(file_path: str) -> None:
+    """
+    Does general formatting such as column width, row height, and coloring.
+    Adds auto-filter to every column except the index column.
+
+    Args:
+        file_path: The path of the Excel file that will be formatted
+    """
     wb = openpyxl.load_workbook(file_path)
 
     ws2 = wb["Pivot"]
@@ -291,8 +371,14 @@ def pivot_excel_formatter(file_path: str) -> None:
     wb.save(file_path)
 
 
-# Adds the version and date information to the Excel file
 def excel_version(file_path: str, file: pd.DataFrame) -> None:
+    """
+    Adds the version and date information to the Excel file.
+
+    Args:
+        file_path: The path of the Excel file that will be formatted
+        file: The dataframe that contains the version and date information
+    """
     wb = openpyxl.load_workbook(file_path)
 
     version = file.iloc[[3, 4], 7]
@@ -315,8 +401,13 @@ def excel_version(file_path: str, file: pd.DataFrame) -> None:
         wb.save(file_path)
 
 
-# checks if the Excel file exists, if it does not then it creates it
 def check_and_create_sheet(output_excel_file: str) -> None:
+    """
+    Checks if the Excel file exists, if it does not then it creates it.
+
+    Args:
+        output_excel_file: The path of the formatted Excel file
+    """
     try:
         if os.path.exists(output_excel_file):
             wb = openpyxl.load_workbook(output_excel_file)
@@ -337,10 +428,21 @@ def check_and_create_sheet(output_excel_file: str) -> None:
         sys.exit(0)
 
 
-# writes the dataframes to the two sheets in the Excel file (general-pivoted)
 def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
                    non_existing: pd.DataFrame, main_sheet_name="Genel",
                    pivot_sheet_name="Pivot", non_existing_sheet_name="Borusuz") -> None:
+    """
+    Writes the dataframes to the three separate sheets in the Excel file.
+
+    Args:
+        output_excel_file: The path of the formatted Excel file
+        main: The dataframe that will be written to the general sheet (non-pivoted & formatted)
+        pivot: The dataframe that will be written to the pivoted sheet (pivoted & formatted)
+        non_existing: The dataframe that will be written to the non-existing sheet
+        main_sheet_name: The name of the general sheet
+        pivot_sheet_name: The name of the pivoted sheet
+        non_existing_sheet_name: The name of the non-existing sheet
+    """
     try:
         with pd.ExcelWriter(output_excel_file, mode="w") as writer:
             main.to_excel(writer, main_sheet_name)

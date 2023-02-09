@@ -1,7 +1,4 @@
 from helper import *
-import warnings
-
-warnings.filterwarnings("ignore")
 
 # read data source files
 next_week, current_week, pipes, types, output_excel_file = file_path_handler()
@@ -22,6 +19,7 @@ master_df = current_week_df.merge(next_week_df, on=[("", "Hat"), ("", "Cihaz TTN
                                                     ("", "Cihaz Aile"), ("", "Boru TTNr"),
                                                     ("", "Tip")], how="right")
 
+# detect devices without pipes
 non_existing_df = detect_devices_without_pipes(source_df=initial_df, output_df=master_df)
 
 # pivot the dataframe to eliminate duplicates
@@ -33,6 +31,7 @@ check_and_create_sheet(output_excel_file)
 # write the dataframe to an Excel file
 write_to_excel(output_excel_file, main=master_df, pivot=df_pivot, non_existing=non_existing_df)
 
+# format the Excel files
 try:
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file, sheet_name="Genel")

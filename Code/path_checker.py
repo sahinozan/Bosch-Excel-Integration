@@ -3,7 +3,13 @@ import sys
 
 
 # TODO: Refactor this function (elegant solution)
-def path_validation(paths: dict):
+def path_validation(paths: dict) -> None:
+    """
+    Checks whether the user has selected the Excel files and the output destination.
+
+    Args:
+        paths: A dictionary containing the paths of the Excel files and the output destination.
+    """
     if "Source1" in paths.keys() and "Source2" in paths.keys() and "Output" in paths.keys():
         if paths["Source1"] == "" and paths["Source2"] == "":
             show_error("You have not selected either of the Excel files!")
