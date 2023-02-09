@@ -57,7 +57,7 @@ class TransformerUI:
             sys.exit(0)
 
     @staticmethod
-    def default_font() -> (str, int):
+    def default_font() -> tuple[str, int]:
         """
         Checks whether the operating system is Windows or macOS and selects the default font and font size accordingly.
 
@@ -69,7 +69,7 @@ class TransformerUI:
         elif sys.platform == "darwin":
             return "Courier", int(13)
 
-    def create_buttons(self) -> (Button, Button, Button, Button):
+    def create_buttons(self) -> tuple[Button, Button, Button, Button]:
         """
         Creates the buttons in the UI. Input1 and input2 are the buttons that are used to select the Excel files for
         the next week's and current week's production plan. Output is the button that is used to select the output
@@ -88,7 +88,7 @@ class TransformerUI:
                                   command=self.root.destroy)
         return input1_button, input2_button, output_button, transform_button
 
-    def create_labels(self) -> (Label, Label, Label, Label):
+    def create_labels(self) -> tuple[Label, Label, Label, Label]:
         """
         Creates the labels in the UI. Input1 and input2 are the text boxes where the user can see the selected file
         path. Output is the text box where the user can see the selected output directory. Progress is the text bar

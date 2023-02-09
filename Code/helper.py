@@ -1,5 +1,6 @@
 # Author: Ozan Şahin
 
+from __future__ import annotations
 import datetime
 import numpy as np
 import pandas as pd
@@ -38,7 +39,7 @@ redFill = PatternFill(start_color='FFFF0000',
                       fill_type='solid')
 
 
-def file_path_handler() -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str):
+def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str]:
     """
     Get the file paths from the UI, convert the files into dataframes.
 
@@ -100,8 +101,8 @@ def file_path_handler() -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFra
     return current_source_file, past_source_file, pipes, types, output_dir
 
 
-def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) -> (pd.DataFrame,
-                                                                             pd.DataFrame, pd.DataFrame):
+def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) \
+        -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Parse the source files and return the dataframes.
 
@@ -118,7 +119,7 @@ def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) -> (pd.
 
 
 def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd.DataFrame,
-                            is_next_week=False) -> pd.DataFrame | (pd.DataFrame, pd.DataFrame):
+                            is_next_week=False) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Filters the rows with missing values and eliminates the unnecessary columns in the main dataframe.
     Then, it merges the main dataframe with the pipes and types dataframes.
@@ -203,16 +204,21 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
     sheet.drop("Toplam Adet", axis=1, inplace=True)
 
     # add the Tip column to the dataframe for the merge operation
-    df.iloc[:, :] = sheet.iloc[:, :]
+    df[df.columns] = sheet[sheet.columns[:-1]]
+
+    # add the Tip column to the df
     df["Tip"] = sheet["Tip"]
+
     # merge the dataframe with the types dataframe (hydraulic, spare, etc.)
     type_df = df.swaplevel(axis=1, i=0, j=1).iloc[:, -1]
     df = pd.concat([df.iloc[:, :-1], type_df], axis=1)
     df.insert(4, ('', 'Tip'), df.pop(('', 'Tip')))
+
     # dropped the index column name (will be filled later with openpyxl for better visuals)
     df = df.set_index(("", "Hat")).rename_axis(axis=0)
+
     # convert work days columns to numeric values
-    df.iloc[:, 4:] = df.iloc[:, 4:].apply(pd.to_numeric, errors='coerce')
+    df[df.columns[4]] = df[df.columns[4]].apply(pd.to_numeric, errors='coerce')
 
     if is_next_week:
         return df, not_formatted_df, deleted_df
@@ -237,7 +243,8 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
 
     # sum the values for the same pipe and shift (pivoting)
     df_pivoted.index = df_pivoted.index.str.split(' ').str[1]
-    df_pivoted = df_pivoted.groupby([df_pivoted.index, ("", "Boru TTNr")]).sum().sort_index(ascending=False)
+    df_pivoted = df_pivoted.groupby([df_pivoted.index, ("", "Boru TTNr")]).sum(numeric_only=False).sort_index(
+        ascending=False)
     df_pivoted = df_pivoted.reset_index(level=1, drop=False)
     df_pivoted.index = df_pivoted.index.map(lambda x: f"Yalın {x}")
     df_pivoted["Tip"] = df_pivoted.loc[:, ("", "Boru TTNr")].map(types.set_index("Boru")["Tip"])
@@ -253,7 +260,7 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
     return df_pivoted
 
 
-def excel_format_validate(list_of_dfs: [pd.DataFrame]) -> None:
+def excel_format_validate(list_of_dfs: list[pd.DataFrame]) -> None:
     """
     Checks the format of the given Excel file. If the format is not correct, the program will be terminated.
 
