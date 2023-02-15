@@ -66,7 +66,7 @@ def path_validation(paths: dict) -> None:
         if paths["Output"] == "":
             show_error("You have not selected either of the Excel files and the output destination!")
             sys.exit(0)
-        show_error("You have not selected the first Excel file!")
+        show_error("You have not selected the either of the Excel files!")
         sys.exit(0)
     elif "Source2" in paths.keys() and "Output" not in paths.keys() and "Source1" in paths.keys():
         if paths["Source1"] == "" and paths["Source2"] == "":
