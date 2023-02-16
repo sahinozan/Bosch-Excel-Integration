@@ -4,20 +4,6 @@ import os
 import sys
 
 
-def show_error(message) -> None:
-    """
-    Shows an error message.
-
-    Args:
-        message: The error message that will be displayed. (e.g. "You have not selected the first Excel file!")
-    """
-    message_window = Tk()
-    message_window.withdraw()
-    messagebox.showerror("Error", message, icon="error")
-    message_window.destroy()
-    sys.exit(0)
-
-
 class TransformerUI:
     def __init__(self, root_window) -> None:
         """
@@ -52,9 +38,24 @@ class TransformerUI:
         """
         self.close = messagebox.askokcancel("Close", "Would you like to close the program?",
                                             icon="warning", parent=self.root)
+
         if self.close:
             self.root.destroy()
             sys.exit(0)
+
+    @staticmethod
+    def show_error(message) -> None:
+        """
+        Shows an error message.
+
+        Args:
+            message: The error message that will be displayed. (e.g. "You have not selected the first Excel file!")
+        """
+        message_window = Tk()
+        message_window.withdraw()
+        messagebox.showerror("Error", message, icon="error")
+        message_window.destroy()
+        sys.exit(0)
 
     @staticmethod
     def default_font() -> tuple[str, int]:

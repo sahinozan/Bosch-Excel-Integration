@@ -13,8 +13,7 @@ from importlib.util import find_spec
 from subprocess import check_call, check_output
 import os
 import sys
-from transformer_ui import show_error
-from path_checker import path_validation
+from transformer_ui import TransformerUI
 
 
 def package_control(packages: list) -> None:
@@ -53,9 +52,9 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
     """
     # Run the UI and get the file paths
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
-        directory = check_output(["python", f"{os.getcwd()}{os.sep}transformer_ui.py"])
+        directory = check_output(["python", f"{os.getcwd()}{os.sep}custom_ui.py"])
     else:
-        directory = check_output(["python", f"{os.getcwd()}{os.sep}Code{os.sep}transformer_ui.py"])
+        directory = check_output(["python", f"{os.getcwd()}{os.sep}Code{os.sep}custom_ui.py"])
     directory = directory.decode("utf-8")
     directory = str(directory.strip())
     paths = {}
@@ -82,7 +81,7 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
         current_source_file = pd.read_excel(current_source_dir)
         past_source_file = pd.read_excel(past_source_dir)
     except FileNotFoundError:
-        show_error("File not found!")
+        TransformerUI.show_error("File not found!")
         sys.exit(0)
 
     # Validation will not be needed after the standalone executable
@@ -95,10 +94,21 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
         pipes = pd.read_excel(master_path, sheet_name="Cihaz - Boru - Miktar")
         types = pd.read_excel(master_path, sheet_name="Boru - Tip")
     except FileNotFoundError:
-        show_error("File not found!")
+        TransformerUI.show_error("File not found!")
         sys.exit(0)
 
     return current_source_file, past_source_file, pipes, types, output_dir
+
+
+def path_validation(paths: dict) -> None:
+    """
+    Checks whether the user has selected the Excel files and the output destination.
+
+    Args:
+        paths: A dictionary containing the paths of the Excel files and the output destination.
+    """
+    if "Source1" not in paths.keys() or "Source2" not in paths.keys() or "Output" not in paths.keys():
+        sys.exit(1)
 
 
 def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) \
@@ -269,7 +279,8 @@ def excel_format_validate(list_of_dfs: list[pd.DataFrame]) -> None:
     """
     for i in list_of_dfs:
         if len(i.columns[i.isin(['Pazartesi']).any()]) == 0:
-            show_error("Format of the first Excel file is not desired. Use an appropriate formatted Excel file.")
+            TransformerUI.show_error("Format of the first Excel file is not desired. Use an appropriate formatted "
+                                     "Excel file.")
             sys.exit(0)
     pass
 
@@ -428,10 +439,10 @@ def check_and_create_sheet(output_excel_file: str) -> None:
 
             wb.save(output_excel_file)
     except PermissionError:
-        show_error("Permission Error!")
+        TransformerUI.show_error("Permission Error!")
         sys.exit(0)
     except Exception as e:  # catch all other exceptions
-        show_error(f"{e}!")
+        TransformerUI.show_error(f"{e}!")
         sys.exit(0)
 
 
@@ -456,9 +467,9 @@ def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
             pivot.to_excel(writer, pivot_sheet_name)
             non_existing.to_excel(writer, non_existing_sheet_name)
     except PermissionError:
-        show_error("Conversion Failed!")
-        show_error("Permission Error!")
+        TransformerUI.show_error("Conversion Failed!")
+        TransformerUI.show_error("Permission Error!")
         sys.exit(0)
     except Exception as e:  # catch all other exceptions
-        show_error(f"{e}!")
+        TransformerUI.show_error(f"{e}!")
         sys.exit(0)

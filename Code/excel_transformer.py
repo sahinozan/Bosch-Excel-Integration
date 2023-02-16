@@ -1,4 +1,5 @@
 from helper import *
+from transformer_ui import TransformerUI
 
 # read data source files
 next_week, current_week, pipes, types, output_excel_file = file_path_handler()
@@ -38,6 +39,6 @@ try:
     general_excel_formatter(file_path=output_excel_file, sheet_name="Borusuz")
     excel_version(file_path=output_excel_file, file=next_week)
 except PermissionError:
-    show_error("Formatting Failed!")
+    TransformerUI.show_error("Formatting Failed!")
 finally:
     sys.exit(0)
