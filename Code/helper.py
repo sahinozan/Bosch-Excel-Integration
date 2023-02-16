@@ -30,7 +30,7 @@ def package_control(packages: list) -> None:
                         '--disable-pip-version-check'])
 
 
-package_control(packages=["pandas", "openpyxl", "numpy"])
+package_control(packages=["pandas", "openpyxl", "numpy", "customtkinter"])
 
 # Colors for Excel formatting
 redFill = PatternFill(start_color='FFFF0000',
