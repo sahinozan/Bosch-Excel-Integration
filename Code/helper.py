@@ -124,7 +124,7 @@ def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) \
         A tuple which contains the parsed versions of both week's production plans
     """
     c_week_df = pd.concat([c_week_df.iloc[:, :12], c_week_df.iloc[:, 27: 33]], axis=1)
-    n_week_df = n_week_df.iloc[:, : 27]
+    n_week_df = n_week_df.iloc[:, : 30]
     return n_week_df, c_week_df
 
 
@@ -335,7 +335,7 @@ def general_excel_formatter(file_path: str, sheet_name) -> None:
     dim_holder['E'] = ColumnDimension(ws1, min=5, max=5, width=18)
 
     # add filter
-    ws1.auto_filter.ref = "A2:Z2"
+    ws1.auto_filter.ref = "A2:AC2"
 
     # highlight the version and date cells
     ws1['A1'].fill = redFill
@@ -376,7 +376,7 @@ def pivot_excel_formatter(file_path: str) -> None:
     dim_holder['C'] = ColumnDimension(ws2, min=3, max=3, width=18)
 
     # add filter
-    ws2.auto_filter.ref = "A2:X2"
+    ws2.auto_filter.ref = "A2:AA2"
 
     # highlight the version and date cells
     ws2['A1'].fill = redFill
