@@ -38,7 +38,7 @@ redFill = PatternFill(start_color='FFFF0000',
                       fill_type='solid')
 
 
-def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str]:
+def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str, str, str]:
     """
     Get the file paths from the UI, convert the files into dataframes.
 
@@ -97,7 +97,7 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
         TransformerUI.show_error("File not found!")
         sys.exit(0)
 
-    return current_source_file, past_source_file, pipes, types, output_dir
+    return current_source_file, past_source_file, pipes, types, output_dir, current_source_dir, past_source_dir
 
 
 def path_validation(paths: dict) -> None:
