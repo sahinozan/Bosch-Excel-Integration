@@ -62,12 +62,11 @@ class ShiftWindow(CTkToplevel):
                              "7")]
 
         shifts = []
-
         for row in matching_rows:
-            row_vardiya = []
+            row_shifts = []
             for col in range(13, 34):
-                row_vardiya.append(worksheet.cell(row=row, column=col).value)
-            shifts.append(row_vardiya)
+                row_shifts.append(worksheet.cell(row=row, column=col).value)
+            shifts.append(row_shifts)
 
         for i in range(len(shifts)):
             for j in range(len(shifts[i])):
@@ -90,7 +89,7 @@ class ShiftWindow(CTkToplevel):
                 worksheet.cell(row=row, column=col).value = element
 
         # DISABLED FOR DEBUGGING PURPOSES!
-        # workbook.save(self.next_week_excel_path)
+        workbook.save(self.next_week_excel_path)
 
         self.destroy()
 
