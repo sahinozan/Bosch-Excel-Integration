@@ -99,7 +99,7 @@ def first_rule(input_excel_path):
                 all_shifts[i][j] = 0
 
     for k in range(len(all_shifts)):
-        for i in range(1, 20):
+        for i in range(0, 21):
             if all_shifts[k][i] < 70:
                 all_shifts[k][i - 1] = int(all_shifts[k][i - 1]) + int(all_shifts[k][i])
                 all_shifts[k][i] = 0
@@ -108,7 +108,7 @@ def first_rule(input_excel_path):
                 all_shifts[k][i - 1] = int(all_shifts[k][i - 1]) + 40
 
     for k in range(len(all_shifts)):
-        for i in range(1, 20):
+        for i in range(0, 21):
             if 30 > all_shifts[k][i] > 0 and all_shifts[k][i + 1] > 0:
                 all_shifts[k][i + 1] = int(all_shifts[k][i + 1]) + int(all_shifts[k][i])
                 all_shifts[k][i] = 0
@@ -135,7 +135,7 @@ def first_rule(input_excel_path):
                 shifts[i][j] = 0
 
     for k in range(len(shifts)):
-        for i in range(1, 20):
+        for i in range(0, 21):
             if shifts[k][i] < 60:
                 shifts[k][i - 1] = int(shifts[k][i - 1]) + int(shifts[k][i])
                 shifts[k][i] = 0
@@ -144,7 +144,7 @@ def first_rule(input_excel_path):
                 shifts[k][i - 1] = int(shifts[k][i - 1]) + 30
 
     for k in range(len(shifts)):
-        for i in range(1, 20):
+        for i in range(0, 21):
             if 30 > shifts[k][i] > 0 and shifts[k][i + 1] > 0:
                 shifts[k][i + 1] = int(shifts[k][i + 1]) + int(shifts[k][i])
                 shifts[k][i] = 0
@@ -154,85 +154,3 @@ def first_rule(input_excel_path):
             worksheet.cell(row=row, column=col).value = element
 
     workbook.save(input_excel_path)
-
-# def second_rule(input_excel_path):
-#     def save_data():
-#         data = {}
-#         data['Gün'] = [date for date in dates]
-#         for shift in range(3):
-#             data[f'Vardiya {shift + 1}'] = [score_entries[dates.index(date) * 3 + shift].get() for date in dates]
-#         global df
-#         df = pd.DataFrame(data)
-#         root.destroy()
-#         root.quit()
-#
-#     root = tk.Tk()
-#     root.title("Mesai Planlama")
-#
-#     dates = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
-#
-#     score_labels = []
-#     score_entries = []
-#
-#     header_label = ttk.Label(root, text="Tarih")
-#     header_label.grid(row=0, column=0)
-#     header_labels = [ttk.Label(root, text=f"Vardiya {i + 1}") for i in range(3)]
-#     for i, header in enumerate(header_labels):
-#         header.grid(row=0, column=i + 1)
-#
-#     for date in dates:
-#         date_label = ttk.Label(root, text=date)
-#         date_label.grid(row=dates.index(date) + 1, column=0)
-#
-#         for shift in range(3):
-#             default_score = "Yok"
-#
-#             score_entry = ttk.Entry(root)
-#             score_entry.insert(0, default_score)
-#             score_entry.grid(row=dates.index(date) + 1, column=shift + 1)
-#
-#             score_entries.append(score_entry)
-#             score_labels.append(date)
-#
-#     save_button = ttk.Button(root, text="Kaydet", command=save_data)
-#     save_button.grid(row=len(dates) + 2, column=0)
-#
-#     root.mainloop()
-#
-#     workbook = openpyxl.load_workbook(input_excel_path)
-#     worksheet = workbook['GZT-GWT']
-#
-#     last_row = worksheet.max_row
-#     matching_rows = [i for i in range(1, last_row + 1) if
-#                      worksheet.cell(row=i, column=8).value and str(worksheet.cell(row=i, column=8).value).startswith(
-#                          "7")]
-#
-#     vardiya = []
-#
-#     for row in matching_rows:
-#         row_vardiya = []
-#         for col in range(13, 34):
-#             row_vardiya.append(worksheet.cell(row=row, column=col).value)
-#         vardiya.append(row_vardiya)
-#
-#     for i in range(len(vardiya)):
-#         for j in range(len(vardiya[i])):
-#             if vardiya[i][j] is None:
-#                 vardiya[i][j] = 0
-#
-#     mesai_list = []
-#     for i in range(len(df)):
-#         for j in range(len(df.columns)):
-#             if df.iloc[i, j] == "Var":
-#                 mesai_list.append((i * 3) + j - 1)
-#
-#     for k in range(len(vardiya)):
-#         for i in mesai_list:
-#             vardiya[k][i - 1] = int(vardiya[k][i]) + int(vardiya[k][i - 1])
-#             vardiya[k][i] = 0
-#
-#     for row, lists in zip(matching_rows, vardiya):
-#         for col, element in zip(range(13, 34), lists):
-#             worksheet.cell(row=row, column=col).value = element
-#
-#     workbook.save(input_excel_path)

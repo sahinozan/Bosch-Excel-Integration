@@ -18,6 +18,12 @@ class ShiftWindow(CTkToplevel):
         self.current_week_excel_path = current_week_excel_path
         self.window_configuration()
         self.create_grid()
+        self.next_week_workbook = openpyxl.load_workbook(self.next_week_excel_path)
+        self.current_week_workbook = openpyxl.load_workbook(self.current_week_excel_path)
+        self.next_week_worksheet = self.next_week_workbook['GZT-GWT']
+        self.current_week_worksheet = self.current_week_workbook['GZT-GWT']
+        self.next_week_df = pd.DataFrame()
+        self.current_week_df = pd.DataFrame()
 
     def window_configuration(self) -> None:
         """
@@ -46,26 +52,37 @@ class ShiftWindow(CTkToplevel):
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def save_data(self):
-        data = {'Gün': [date for date in self.dates]}
-        df = pd.DataFrame(data)
+        next_week_data = {'Gün': [date for date in self.dates]}
+        current_week_data = {'Gün': [date for date in self.dates]}
+        next_week_score_entries = self.score_entries[21:]
+        current_week_score_entries = self.score_entries[:21]
+
         for shift in range(3):
-            data[f'Shift {shift + 1}'] = [self.score_entries[self.dates.index(date) * 3 + shift].get() for date in
-                                          self.dates]
+            next_week_data[f'Shift {shift + 1}'] = [next_week_score_entries[self.dates.index(date) * 3 + shift].get()
+                                                    for date in self.dates]
+            current_week_data[f'Shift {shift + 1}'] = [
+                current_week_score_entries[self.dates.index(date) * 3 + shift].get() for date in self.dates]
 
-        workbook = openpyxl.load_workbook(self.next_week_excel_path)
-        worksheet = workbook['GZT-GWT']
+        self.next_week_df = pd.DataFrame(next_week_data)
+        self.current_week_df = pd.DataFrame(current_week_data)
 
-        last_row = worksheet.max_row
+        self.next_func()
+        self.current_func()
+        self.destroy()
+
+    def next_func(self):
+
+        last_row = self.next_week_worksheet.max_row
         matching_rows = [i for i in range(1, last_row + 1) if
-                         worksheet.cell(row=i, column=8).value and str(
-                             worksheet.cell(row=i, column=8).value).startswith(
+                         self.next_week_worksheet.cell(row=i, column=8).value and str(
+                             self.next_week_worksheet.cell(row=i, column=8).value).startswith(
                              "7")]
 
         shifts = []
         for row in matching_rows:
             row_shifts = []
             for col in range(13, 34):
-                row_shifts.append(worksheet.cell(row=row, column=col).value)
+                row_shifts.append(self.next_week_worksheet.cell(row=row, column=col).value)
             shifts.append(row_shifts)
 
         for i in range(len(shifts)):
@@ -74,9 +91,9 @@ class ShiftWindow(CTkToplevel):
                     shifts[i][j] = 0
 
         shift_list = []
-        for i in range(len(df)):
-            for j in range(len(df.columns)):
-                if df.iloc[i, j] == "Var":
+        for i in range(len(self.next_week_df)):
+            for j in range(len(self.next_week_df.columns)):
+                if self.next_week_df.iloc[i, j] == "Var":
                     shift_list.append((i * 3) + j - 1)
 
         for k in range(len(shifts)):
@@ -86,12 +103,45 @@ class ShiftWindow(CTkToplevel):
 
         for row, lists in zip(matching_rows, shifts):
             for col, element in zip(range(13, 34), lists):
-                worksheet.cell(row=row, column=col).value = element
+                self.next_week_worksheet.cell(row=row, column=col).value = element
 
-        # DISABLED FOR DEBUGGING PURPOSES!
-        workbook.save(self.next_week_excel_path)
+        self.next_week_workbook.save(self.next_week_excel_path)
 
-        self.destroy()
+    def current_func(self):
+        last_row = self.current_week_worksheet.max_row
+        matching_rows = [i for i in range(1, last_row + 1) if
+                         self.current_week_worksheet.cell(row=i, column=8).value and str(
+                             self.current_week_worksheet.cell(row=i, column=8).value).startswith(
+                             "7")]
+
+        shifts = []
+        for row in matching_rows:
+            row_shifts = []
+            for col in range(13, 34):
+                row_shifts.append(self.current_week_worksheet.cell(row=row, column=col).value)
+            shifts.append(row_shifts)
+
+        for i in range(len(shifts)):
+            for j in range(len(shifts[i])):
+                if shifts[i][j] is None:
+                    shifts[i][j] = 0
+
+        shift_list = []
+        for i in range(len(self.current_week_df)):
+            for j in range(len(self.current_week_df.columns)):
+                if self.current_week_df.iloc[i, j] == "Var":
+                    shift_list.append((i * 3) + j - 1)
+
+        for k in range(len(shifts)):
+            for i in shift_list:
+                shifts[k][i - 1] = int(shifts[k][i]) + int(shifts[k][i - 1])
+                shifts[k][i] = 0
+
+        for row, lists in zip(matching_rows, shifts):
+            for col, element in zip(range(13, 34), lists):
+                self.current_week_worksheet.cell(row=row, column=col).value = element
+
+        self.current_week_workbook.save(self.current_week_excel_path)
 
     def create_grid(self):
         current_week_tab_name = "Current Week"

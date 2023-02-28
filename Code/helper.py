@@ -14,7 +14,6 @@ from subprocess import check_call, check_output
 import os
 import sys
 from custom_ui import App
-from rules import first_rule
 
 
 def package_control(packages: list) -> None:
@@ -39,7 +38,7 @@ redFill = PatternFill(start_color='FFFF0000',
                       fill_type='solid')
 
 
-def file_path_handler(is_first_rule: bool = False) -> \
+def file_path_handler() -> \
         tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str, str, str]:
     """
     Get the file paths from the UI, convert the files into dataframes.
@@ -81,11 +80,6 @@ def file_path_handler(is_first_rule: bool = False) -> \
     current_source_dir, past_source_dir, output_dir = paths["Source1"], paths["Source2"], paths["Output"]
     current_source_file_name = current_source_dir.split("/")[-1]
     output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
-
-    # Apply the first rule (hydraulic, spare part) for the source files
-    if is_first_rule:
-        first_rule(input_excel_path=current_source_dir)
-        first_rule(input_excel_path=past_source_dir)
 
     try:
         current_source_file = pd.read_excel(current_source_dir)
