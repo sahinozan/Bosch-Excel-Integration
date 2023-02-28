@@ -13,7 +13,8 @@ from importlib.util import find_spec
 from subprocess import check_call, check_output
 import os
 import sys
-from transformer_ui import TransformerUI
+from custom_ui import App
+from rules import first_rule
 
 
 def package_control(packages: list) -> None:
@@ -77,11 +78,15 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
     current_source_file_name = current_source_dir.split("/")[-1]
     output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
 
+    # Apply the first rule (hydraulic, spare part) for the source files
+    first_rule(input_excel_path=current_source_dir)
+    first_rule(input_excel_path=past_source_dir)
+
     try:
         current_source_file = pd.read_excel(current_source_dir)
         past_source_file = pd.read_excel(past_source_dir)
     except FileNotFoundError:
-        TransformerUI.show_error("File not found!")
+        App.show_error("File not found!")
         sys.exit(0)
 
     # Validation will not be needed after the standalone executable
@@ -94,7 +99,7 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
         pipes = pd.read_excel(master_path, sheet_name="Cihaz - Boru - Miktar")
         types = pd.read_excel(master_path, sheet_name="Boru - Tip")
     except FileNotFoundError:
-        TransformerUI.show_error("File not found!")
+        App.show_error("File not found!")
         sys.exit(0)
 
     return current_source_file, past_source_file, pipes, types, output_dir, current_source_dir, past_source_dir
@@ -279,10 +284,30 @@ def excel_format_validate(list_of_dfs: list[pd.DataFrame]) -> None:
     """
     for i in list_of_dfs:
         if len(i.columns[i.isin(['Pazartesi']).any()]) == 0:
-            TransformerUI.show_error("Format of the first Excel file is not desired. Use an appropriate formatted "
-                                     "Excel file.")
+            App.show_error("Format of the first Excel file is not desired. Use an appropriate formatted Excel file.")
             sys.exit(0)
     pass
+
+
+def remove_unnecessary_workday(output_excel_file_path) -> None:
+    """
+    Removes the next week's saturday from the output Excel file.
+
+    Args:
+        output_excel_file_path: The path of the output Excel file
+    """
+    wb = openpyxl.load_workbook(output_excel_file_path)
+
+    for sheet in wb.sheetnames:
+        ws = wb[sheet]
+        if sheet in ["Genel", "Borusuz"]:
+            ws.delete_cols(27, 3)
+            ws.auto_filter.ref = "A2:Z2"
+        else:
+            ws.delete_cols(25, 3)
+            ws.auto_filter.ref = "A2:X2"
+
+    wb.save(output_excel_file_path)
 
 
 def detect_devices_without_pipes(source_df: pd.DataFrame, output_df: pd.DataFrame) -> pd.DataFrame:
@@ -439,10 +464,10 @@ def check_and_create_sheet(output_excel_file: str) -> None:
 
             wb.save(output_excel_file)
     except PermissionError:
-        TransformerUI.show_error("Permission Error!")
+        App.show_error("Permission Error!")
         sys.exit(0)
     except Exception as e:  # catch all other exceptions
-        TransformerUI.show_error(f"{e}!")
+        App.show_error(f"{e}!")
         sys.exit(0)
 
 
@@ -467,9 +492,9 @@ def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
             pivot.to_excel(writer, pivot_sheet_name)
             non_existing.to_excel(writer, non_existing_sheet_name)
     except PermissionError:
-        TransformerUI.show_error("Conversion Failed!")
-        TransformerUI.show_error("Permission Error!")
+        App.show_error("Conversion Failed!")
+        App.show_error("Permission Error!")
         sys.exit(0)
     except Exception as e:  # catch all other exceptions
-        TransformerUI.show_error(f"{e}!")
+        App.show_error(f"{e}!")
         sys.exit(0)
