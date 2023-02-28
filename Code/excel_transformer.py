@@ -5,7 +5,7 @@ from custom_ui import App
 from rules import third_rule
 
 # read data source files
-next_week, current_week, pipes, types, output_excel_file, current_dir, next_dir = file_path_handler()
+next_week, current_week, pipes, types, output_excel_file, current_dir, next_dir = file_path_handler(is_first_rule=False)
 
 # check whether the Excel files are in the desired format
 excel_format_validate(list_of_dfs=[next_week, current_week])

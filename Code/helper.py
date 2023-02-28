@@ -39,9 +39,13 @@ redFill = PatternFill(start_color='FFFF0000',
                       fill_type='solid')
 
 
-def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str, str, str]:
+def file_path_handler(is_first_rule: bool = False) -> \
+        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str, str, str]:
     """
     Get the file paths from the UI, convert the files into dataframes.
+
+    Args:
+        is_first_rule: A boolean that indicates whether the first rule is being applied or not.
 
     Returns:
         A tuple which contains the following:
@@ -79,8 +83,9 @@ def file_path_handler() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Da
     output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
 
     # Apply the first rule (hydraulic, spare part) for the source files
-    first_rule(input_excel_path=current_source_dir)
-    first_rule(input_excel_path=past_source_dir)
+    if is_first_rule:
+        first_rule(input_excel_path=current_source_dir)
+        first_rule(input_excel_path=past_source_dir)
 
     try:
         current_source_file = pd.read_excel(current_source_dir)
