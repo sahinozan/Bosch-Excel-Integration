@@ -240,8 +240,8 @@ class App(CTk):
         first_rule(input_excel_path=self.current_week_path.get())
         self.show_info(
             message="""Kural Pazartesi günü hariç başarıyla uygulandı. Lütfen Gelecek Hafta planında 
-            Pazar günü 2. vardiyaya aktarılanları, bu haftanın pazar 3. vardiyasına (veya bu hafta 
-            en son hangi vardiyada üretim olacaksa) aktarınız.""",
+            Pazar günü 2. vardiyaya aktarılanları, bu haftanın pazar 3. vardiyasına 
+            (veya bu hafta en son hangi vardiyada üretim olacaksa) aktarınız.""",
             system_exit=False)
 
     def get_shifts(self):

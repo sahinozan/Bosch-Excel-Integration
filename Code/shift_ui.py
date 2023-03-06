@@ -4,6 +4,7 @@ import sys
 import openpyxl
 import pandas as pd
 from customtkinter import CTkToplevel, CTkTabview, CTkLabel, CTkOptionMenu, CTkButton
+from tkinter import Tk, messagebox
 
 
 class ShiftWindow(CTkToplevel):
@@ -51,6 +52,22 @@ class ShiftWindow(CTkToplevel):
         # set the dimensions of the screen where the window will be displayed
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
+    def show_info(self, message: str, system_exit=True) -> None:
+        """
+        Shows an information message.
+
+        Args:
+            message: The error message that will be displayed. (e.g. "You have not selected the first Excel file!")
+            system_exit: Whether the program should be closed after the error message has been displayed.
+        """
+        warning_window = Tk()
+
+        warning_window.withdraw()
+        messagebox.showinfo(title="Information", message=message, icon="info", parent=self)
+        warning_window.destroy()
+        if system_exit:
+            sys.exit(0)
+
     def save_data(self):
         next_week_data = {'Gün': [date for date in self.dates]}
         current_week_data = {'Gün': [date for date in self.dates]}
@@ -68,6 +85,12 @@ class ShiftWindow(CTkToplevel):
 
         self.next_func()
         self.current_func()
+
+        if next_week_score_entries[0].get() == "Var":
+            self.show_info(message="""Gelecek hafta planında Pazartesi 1. Vardiya için işlem gerçekleştirilemiyor. 
+            Lütfen bu vardiyada üretilmesi planlanan boruları ve adetleri, bu hafta pazar günü 3. vardiyaya 
+            (veya en son hangi vardiyada üretim olacaksa) aktarınız.""", system_exit=False)
+
         self.destroy()
 
     def next_func(self):
