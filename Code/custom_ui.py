@@ -70,15 +70,12 @@ class App(CTk):
         if self.output_destination_path.get() == "" or self.output_destination_path.get() == "Output Destination" \
                 or self.next_week_path.get() == "" or self.next_week_path.get() == "Next Week" or \
                 self.current_week_path.get() == "" or self.current_week_path.get() == "Current Week":
+            self.first_rule_button.configure(state="disabled")
             self.second_rule_button.configure(state="disabled")
-        else:
-            self.second_rule_button.configure(state="normal")
-        if self.output_destination_path.get() == "" or self.current_week_path.get() == "" or \
-                self.next_week_path.get() == "" or self.output_destination_path.get() == "Output Destination" or \
-                self.current_week_path.get() == "Current Week" or self.next_week_path.get() == "Next Week" \
-                and self.second_rule_button["state"] != "disabled":
             self.transform_button.configure(state="disabled")
         else:
+            self.first_rule_button.configure(state="normal")
+            self.second_rule_button.configure(state="normal")
             self.transform_button.configure(state="normal")
 
     def on_close(self) -> None:
