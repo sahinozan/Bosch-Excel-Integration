@@ -2,7 +2,7 @@
 
 import os
 import sys
-from tkinter import messagebox, filedialog
+from tkinter import messagebox, filedialog, Tk
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkFont, CTkOptionMenu, CTkEntry, set_appearance_mode, \
     set_default_color_theme
 from shift_ui import ShiftWindow
@@ -28,11 +28,11 @@ class App(CTk):
         self.sidebar_frame = CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
-        self.logo_label = CTkLabel(self.sidebar_frame, text="Excel Converter",
-                                   font=CTkFont(size=20, weight="bold"))
+        self.logo_label = CTkLabel(self.sidebar_frame, text="MOE32\nProduction\nPlanner",
+                                   font=CTkFont(size=17, weight="bold"), anchor="w")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        self.first_rule_button, self.shifts_button, self.next_week_button, self.current_week_button, \
+        self.first_rule_button, self.second_rule_button, self.next_week_button, self.current_week_button, \
             self.output_destination_button, self.transform_button = self.create_buttons()
         self.next_week_path, self.current_week_path, self.output_destination_path = self.create_labels()
         self.place_components()
@@ -41,7 +41,9 @@ class App(CTk):
         self.appearance_mode_label.grid(row=7, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_option_menu = CTkOptionMenu(self.sidebar_frame,
                                                          values=["Dark", "Light", "System"],
-                                                         command=self.change_appearance_mode_event)
+                                                         command=self.change_appearance_mode_event,
+                                                         font=("Arial", 12),
+                                                         anchor="w")
         self.appearance_mode_option_menu.grid(row=8, column=0, padx=20, pady=(10, 20))
         self.create_labels()
 
@@ -68,13 +70,13 @@ class App(CTk):
         if self.output_destination_path.get() == "" or self.output_destination_path.get() == "Output Destination" \
                 or self.next_week_path.get() == "" or self.next_week_path.get() == "Next Week" or \
                 self.current_week_path.get() == "" or self.current_week_path.get() == "Current Week":
-            self.shifts_button.configure(state="disabled")
+            self.second_rule_button.configure(state="disabled")
         else:
-            self.shifts_button.configure(state="normal")
+            self.second_rule_button.configure(state="normal")
         if self.output_destination_path.get() == "" or self.current_week_path.get() == "" or \
                 self.next_week_path.get() == "" or self.output_destination_path.get() == "Output Destination" or \
                 self.current_week_path.get() == "Current Week" or self.next_week_path.get() == "Next Week" \
-                and self.shifts_button["state"] != "disabled":
+                and self.second_rule_button["state"] != "disabled":
             self.transform_button.configure(state="disabled")
         else:
             self.transform_button.configure(state="normal")
@@ -91,7 +93,7 @@ class App(CTk):
             sys.exit(0)
 
     @staticmethod
-    def show_error(message, system_exit=True) -> None:
+    def show_error(message: str, system_exit=True) -> None:
         """
         Shows an error message.
 
@@ -102,6 +104,22 @@ class App(CTk):
         message_window = CTk()
         message_window.withdraw()
         messagebox.showerror("Error", message, icon="error")
+        message_window.destroy()
+        if system_exit:
+            sys.exit(0)
+
+    def show_info(self, message: str, system_exit=True) -> None:
+        """
+        Shows an information message.
+
+        Args:
+            message: The error message that will be displayed. (e.g. "You have not selected the first Excel file!")
+            system_exit: Whether the program should be closed after the error message has been displayed.
+        """
+        message_window = Tk()
+
+        message_window.withdraw()
+        messagebox.showinfo(title="Information", message=message, icon="info", parent=self)
         message_window.destroy()
         if system_exit:
             sys.exit(0)
@@ -129,18 +147,18 @@ class App(CTk):
             A tuple with the next week, current week, output destination, and transform buttons.
         """
         first_rule_button = CTkButton(self.sidebar_frame, command=self.apply_first_rule,
-                                      text="First Rule")
-        shifts_button = CTkButton(self.sidebar_frame, command=self.get_shifts,
-                                  text="Second Rule")
+                                      text="Quantity Transfer Rule", font=("Arial", 12))
+        second_rule_button = CTkButton(self.sidebar_frame, command=self.get_shifts,
+                                       text="Shift Control Rule", font=("Arial", 12))
         next_week_button = CTkButton(self.sidebar_frame, command=self.browse_first_input_file,
-                                     text="Next Week")
+                                     text="Next Week", font=("Arial", 12))
         current_week_button = CTkButton(self.sidebar_frame, command=self.browse_second_input_file,
-                                        text="Current Week")
+                                        text="Current Week", font=("Arial", 12))
         output_destination_button = CTkButton(self.sidebar_frame, command=self.browse_output_directory,
-                                              text="Output Destination")
+                                              text="Output Destination", font=("Arial", 12))
         transform_button = CTkButton(self.sidebar_frame, command=self.destroy,
-                                     text="Transform")
-        return first_rule_button, shifts_button, next_week_button, current_week_button, \
+                                     text="Transform", font=("Arial", 12))
+        return first_rule_button, second_rule_button, next_week_button, current_week_button, \
             output_destination_button, transform_button
 
     def create_labels(self) -> tuple[CTkEntry, CTkEntry, CTkEntry]:
@@ -169,7 +187,7 @@ class App(CTk):
         self.current_week_button.grid(row=2, column=0, padx=20, pady=10)
         self.output_destination_button.grid(row=3, column=0, padx=20, pady=10)
         self.first_rule_button.grid(row=4, column=0, padx=20, pady=10)
-        self.shifts_button.grid(row=5, column=0, padx=20, pady=10)
+        self.second_rule_button.grid(row=5, column=0, padx=20, pady=10)
         self.transform_button.grid(row=6, column=0, padx=20, pady=10)
 
         self.next_week_path.grid(row=0, column=1, padx=(20, 20), pady=(20, 0), sticky="nsew")
@@ -196,7 +214,7 @@ class App(CTk):
         Sets the title of the window, makes the window non-resizable, and makes the window close when the user clicks.
         Also sets the dimensions of the window and places it in the center of the screen.
         """
-        self.title("Excel Converter")
+        self.title("MOE32 Production Planner")
 
         # make the window non-resizable
         self.resizable(False, False)
@@ -207,7 +225,7 @@ class App(CTk):
         # set the dimensions of the window
         w = 750  # width for the Tk root
         # h = 393  # height for the Tk root
-        h = 440  # height for the Tk root
+        h = 475  # height for the Tk root
 
         # get screen width and height
         ws = self.winfo_screenwidth()  # width of the screen
@@ -223,7 +241,11 @@ class App(CTk):
     def apply_first_rule(self) -> None:
         first_rule(input_excel_path=self.next_week_path.get())
         first_rule(input_excel_path=self.current_week_path.get())
-        self.show_error("First Rule Applied!", system_exit=False)
+        self.show_info(
+            message="""Kural Pazartesi günü hariç başarıyla uygulandı. Lütfen Gelecek Hafta planında 
+            Pazar günü 2. vardiyaya aktarılanları, bu haftanın pazar 3. vardiyasına (veya bu hafta 
+            en son hangi vardiyada üretim olacaksa) aktarınız.""",
+            system_exit=False)
 
     def get_shifts(self):
         if self.shift_window is None or not self.shift_window.winfo_exists():

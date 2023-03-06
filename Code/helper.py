@@ -43,9 +43,6 @@ def file_path_handler() -> \
     """
     Get the file paths from the UI, convert the files into dataframes.
 
-    Args:
-        is_first_rule: A boolean that indicates whether the first rule is being applied or not.
-
     Returns:
         A tuple which contains the following:
         current_source_file: A dataframe of the current week's production plan
