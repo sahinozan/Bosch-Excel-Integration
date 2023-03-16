@@ -6,7 +6,6 @@ from tkinter import messagebox, filedialog, Tk
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkFont, CTkOptionMenu, CTkEntry, set_appearance_mode, \
     set_default_color_theme
 from shift_ui import ShiftWindow
-from rules import first_rule
 
 
 class App(CTk):
@@ -32,7 +31,7 @@ class App(CTk):
                                    font=CTkFont(size=17, weight="bold"), anchor="w")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        self.first_rule_button, self.second_rule_button, self.next_week_button, self.current_week_button, \
+        self.second_rule_button, self.next_week_button, self.current_week_button, \
             self.output_destination_button, self.transform_button = self.create_buttons()
         self.next_week_path, self.current_week_path, self.output_destination_path = self.create_labels()
         self.place_components()
@@ -70,11 +69,9 @@ class App(CTk):
         if self.output_destination_path.get() == "" or self.output_destination_path.get() == "Output Destination" \
                 or self.next_week_path.get() == "" or self.next_week_path.get() == "Next Week" or \
                 self.current_week_path.get() == "" or self.current_week_path.get() == "Current Week":
-            self.first_rule_button.configure(state="disabled")
             self.second_rule_button.configure(state="disabled")
             self.transform_button.configure(state="disabled")
         else:
-            self.first_rule_button.configure(state="normal")
             self.second_rule_button.configure(state="normal")
             self.transform_button.configure(state="normal")
 
@@ -134,7 +131,7 @@ class App(CTk):
         elif sys.platform == "darwin":
             return "Courier", int(13)
 
-    def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton, CTkButton, CTkButton]:
+    def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton, CTkButton]:
         """
         Creates the buttons in the UI. Input1 and input2 are the buttons that are used to select the Excel files for
         the next week's and current week's production plan. Output is the button that is used to select the output
@@ -143,8 +140,6 @@ class App(CTk):
         Returns:
             A tuple with the next week, current week, output destination, and transform buttons.
         """
-        first_rule_button = CTkButton(self.sidebar_frame, command=self.apply_first_rule,
-                                      text="Quantity Transfer Rule", font=("Arial", 12))
         second_rule_button = CTkButton(self.sidebar_frame, command=self.get_shifts,
                                        text="Shift Control Rule", font=("Arial", 12))
         next_week_button = CTkButton(self.sidebar_frame, command=self.browse_first_input_file,
@@ -155,7 +150,7 @@ class App(CTk):
                                               text="Output Destination", font=("Arial", 12))
         transform_button = CTkButton(self.sidebar_frame, command=self.destroy,
                                      text="Transform", font=("Arial", 12))
-        return first_rule_button, second_rule_button, next_week_button, current_week_button, \
+        return second_rule_button, next_week_button, current_week_button, \
             output_destination_button, transform_button
 
     def create_labels(self) -> tuple[CTkEntry, CTkEntry, CTkEntry]:
@@ -183,8 +178,7 @@ class App(CTk):
         self.next_week_button.grid(row=1, column=0, padx=20, pady=10)
         self.current_week_button.grid(row=2, column=0, padx=20, pady=10)
         self.output_destination_button.grid(row=3, column=0, padx=20, pady=10)
-        self.first_rule_button.grid(row=4, column=0, padx=20, pady=10)
-        self.second_rule_button.grid(row=5, column=0, padx=20, pady=10)
+        self.second_rule_button.grid(row=4, column=0, padx=20, pady=10)
         self.transform_button.grid(row=6, column=0, padx=20, pady=10)
 
         self.next_week_path.grid(row=0, column=1, padx=(20, 20), pady=(20, 0), sticky="nsew")
@@ -221,8 +215,7 @@ class App(CTk):
 
         # set the dimensions of the window
         w = 750  # width for the Tk root
-        # h = 393  # height for the Tk root
-        h = 475  # height for the Tk root
+        h = 425  # height for the Tk root
 
         # get screen width and height
         ws = self.winfo_screenwidth()  # width of the screen
@@ -234,15 +227,6 @@ class App(CTk):
 
         # set the dimensions of the screen where the window will be displayed
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
-
-    def apply_first_rule(self) -> None:
-        first_rule(input_excel_path=self.next_week_path.get())
-        first_rule(input_excel_path=self.current_week_path.get())
-        self.show_info(
-            message="""Kural Pazartesi günü hariç başarıyla uygulandı. Lütfen Gelecek Hafta planında 
-            Pazar günü 2. vardiyaya aktarılanları, bu haftanın pazar 3. vardiyasına 
-            (veya bu hafta en son hangi vardiyada üretim olacaksa) aktarınız.""",
-            system_exit=False)
 
     def get_shifts(self):
         if self.shift_window is None or not self.shift_window.winfo_exists():
