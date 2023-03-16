@@ -227,7 +227,6 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
 
     # dropped the index column name (will be filled later with openpyxl for better visuals)
     df = df.set_index(("", "Hat")).rename_axis(axis=0)
-    # df.index = df.index.map(lambda x: f"Hat {x.split(' ')[1]}")
     df.index = df.index.map(lambda x: "Hat 1" if '7' in x else f"Hat {x.split(' ')[1]}")
 
     # convert work days columns to numeric values
@@ -260,7 +259,6 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
     df_pivoted = df_pivoted.groupby([df_pivoted.index, ("", "Boru TTNr")]).sum(numeric_only=False).sort_index(
         ascending=False)
     df_pivoted = df_pivoted.reset_index(level=1, drop=False)
-    # df_pivoted.index = df_pivoted.index.map(lambda x: f"Hat {x}")
     df_pivoted.index = df_pivoted.index.map(lambda x: x == "Hat 1" if x == 7 else f'Hat {x}')
     df_pivoted["Tip"] = df_pivoted.loc[:, ("", "Boru TTNr")].map(types.set_index("Boru")["Tip"])
 
