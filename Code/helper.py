@@ -227,6 +227,7 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
 
     # dropped the index column name (will be filled later with openpyxl for better visuals)
     df = df.set_index(("", "Hat")).rename_axis(axis=0)
+    df.index = df.index.map(lambda x: f"Hat {x.split(' ')[1]}")
 
     # convert work days columns to numeric values
     df[df.columns[4]] = df[df.columns[4]].apply(pd.to_numeric, errors='coerce')
@@ -249,7 +250,8 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
         A dataframe that contains the pivoted values
     """
     # create the dataframe for the Excel pivoting (multi-level columns)
-    df_pivoted = df_initial.sort_index(key=lambda x: (x.to_series().str[6:].astype("int64")))
+    # df_initial.index = df_initial.index.str.split(' ').str[1]
+    df_pivoted = df_initial.sort_index(key=lambda x: (x.to_series().str[4:].astype("int64")))
     df_pivoted = df_pivoted.drop(columns=[('', 'Cihaz TTNr'), ('', 'Cihaz Aile'), ('', 'Tip')])
 
     # sum the values for the same pipe and shift (pivoting)
@@ -257,7 +259,7 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
     df_pivoted = df_pivoted.groupby([df_pivoted.index, ("", "Boru TTNr")]).sum(numeric_only=False).sort_index(
         ascending=False)
     df_pivoted = df_pivoted.reset_index(level=1, drop=False)
-    df_pivoted.index = df_pivoted.index.map(lambda x: f"Yalın {x}")
+    df_pivoted.index = df_pivoted.index.map(lambda x: f"Hat {x}")
     df_pivoted["Tip"] = df_pivoted.loc[:, ("", "Boru TTNr")].map(types.set_index("Boru")["Tip"])
 
     # swap the levels of the columns to match the initial Excel
