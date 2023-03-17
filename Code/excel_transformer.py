@@ -2,7 +2,7 @@
 
 from helper import *
 from custom_ui import App
-from rules import third_rule
+from rules import third_rule, shift_by_one
 
 # read data source files
 next_week, current_week, pipes, types, output_excel_file, current_dir, next_dir = file_path_handler()
@@ -42,6 +42,7 @@ try:
     general_excel_formatter(file_path=output_excel_file, sheet_name="Borusuz")
     excel_version(file_path=output_excel_file, file=next_week)
     third_rule(input_excel_path=output_excel_file)
+    shift_by_one(output_excel_path=output_excel_file)
     remove_unnecessary_workday(output_excel_file_path=output_excel_file)
 except PermissionError:
     App.show_error("Formatting Failed!")

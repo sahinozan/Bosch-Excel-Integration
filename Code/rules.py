@@ -153,3 +153,16 @@ def first_rule(input_excel_path):
             worksheet.cell(row=row, column=col).value = element
 
     workbook.save(input_excel_path)
+
+
+def shift_by_one(output_excel_path):
+    workbook = openpyxl.load_workbook(output_excel_path)
+
+    worksheet = workbook['Pivot']
+
+    for row in worksheet.iter_rows(min_row=3, min_col=5, max_row=worksheet.max_row, max_col=27):
+        for cell in row:
+            cell.offset(column=-1).value = cell.value
+            cell.value = None
+
+    workbook.save(output_excel_path)
