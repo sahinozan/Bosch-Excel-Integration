@@ -31,8 +31,8 @@ def third_rule(input_excel_path):
             worksheet.cell(row=row, column=col).value = element
 
     matching_rows = [i for i in range(1, last_row + 1) if worksheet.cell(row=i, column=1).value and
-                     ("Yalın 3" in str(worksheet.cell(row=i, column=1).value) or
-                      "Yalın 4" in str(worksheet.cell(row=i, column=1).value)) and
+                     ("Hat 3" in str(worksheet.cell(row=i, column=1).value) or
+                      "Hat 4" in str(worksheet.cell(row=i, column=1).value)) and
                      "Hidrolik Borusu" in str(worksheet.cell(row=i, column=3).value)]
 
     shifts = []
@@ -77,12 +77,11 @@ def first_rule(input_excel_path):
     last_row = worksheet.max_row
 
     all_matching_rows = [i for i in range(1, last_row + 1) if worksheet.cell(row=i, column=1).value and
-                         ("Yalın 7" in str(worksheet.cell(row=i, column=1).value) or
-                          "Yalın 2" in str(worksheet.cell(row=i, column=1).value) or
-                          "Yalın 4" in str(worksheet.cell(row=i, column=1).value) or
-                          "Yalın 5" in str(worksheet.cell(row=i, column=1).value) or
-                          "Yalın 6" in str(worksheet.cell(row=i, column=1).value) or
-                          "Yalın 1" in str(worksheet.cell(row=i, column=1).value)) and
+                         ("Hat 1" in str(worksheet.cell(row=i, column=1).value) or
+                          "Hat 2" in str(worksheet.cell(row=i, column=1).value) or
+                          "Hat 4" in str(worksheet.cell(row=i, column=1).value) or
+                          "Hat 5" in str(worksheet.cell(row=i, column=1).value) or
+                          "Hat 6" in str(worksheet.cell(row=i, column=1).value)) and
                          str(worksheet.cell(row=i, column=8).value).startswith("7")]
 
     all_shifts = []
@@ -118,7 +117,7 @@ def first_rule(input_excel_path):
             worksheet.cell(row=row, column=col).value = element
 
     matching_rows = [i for i in range(1, last_row + 1) if worksheet.cell(row=i, column=1).value and
-                     ("Yalın 3" in str(worksheet.cell(row=i, column=1).value)) and
+                     ("Hat 3" in str(worksheet.cell(row=i, column=1).value)) and
                      str(worksheet.cell(row=i, column=8).value).startswith("7")]
 
     shifts = []
