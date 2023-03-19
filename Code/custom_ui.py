@@ -131,6 +131,10 @@ class App(CTk):
         elif sys.platform == "darwin":
             return "Courier", int(13)
 
+    def transform(self):
+        self.show_info("Bu pencere kapandıktan sonra, ikinci kuralı uygulamanız için başka bir ekran gelecektir. Lütfen bekleyiniz.")
+        self.destroy()
+
     def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton, CTkButton]:
         """
         Creates the buttons in the UI. Input1 and input2 are the buttons that are used to select the Excel files for
@@ -148,7 +152,7 @@ class App(CTk):
                                         text="Current Week", font=("Arial", 12))
         output_destination_button = CTkButton(self.sidebar_frame, command=self.browse_output_directory,
                                               text="Output Destination", font=("Arial", 12))
-        transform_button = CTkButton(self.sidebar_frame, command=self.destroy,
+        transform_button = CTkButton(self.sidebar_frame, command=self.transform,
                                      text="Transform", font=("Arial", 12))
         return second_rule_button, next_week_button, current_week_button, \
             output_destination_button, transform_button

@@ -94,7 +94,6 @@ class ShiftWindow(CTkToplevel):
         self.destroy()
 
     def next_func(self):
-
         last_row = self.next_week_worksheet.max_row
         matching_rows = [i for i in range(1, last_row + 1) if
                          self.next_week_worksheet.cell(row=i, column=8).value and str(
@@ -166,7 +165,7 @@ class ShiftWindow(CTkToplevel):
 
         self.current_week_workbook.save(self.current_week_excel_path)
 
-    def create_grid(self):
+    def create_grid(self) -> None:
         current_week_tab_name = "Current Week"
         next_week_tab_name = "Next Week"
 
