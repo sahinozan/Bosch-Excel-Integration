@@ -78,6 +78,9 @@ def file_path_handler() -> \
     current_source_file_name = current_source_dir.split("/")[-1]
     output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
 
+    with open("output_path.txt", "w") as f:
+        f.write(output_dir)
+
     try:
         current_source_file = pd.read_excel(current_source_dir)
         past_source_file = pd.read_excel(past_source_dir)
@@ -88,7 +91,7 @@ def file_path_handler() -> \
     # Validation will not be needed after the standalone executable
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
         master_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
-                      f"{os.sep}Data{os.sep}Master Data.xlsx"
+            f"{os.sep}Data{os.sep}Master Data.xlsx"
     else:
         master_path = os.getcwd() + f"{os.sep}Data{os.sep}Master Data.xlsx"
     try:
