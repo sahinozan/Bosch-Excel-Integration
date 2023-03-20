@@ -31,8 +31,8 @@ class App(CTk):
                                    font=CTkFont(size=17, weight="bold"), anchor="w")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        self.second_rule_button, self.next_week_button, self.current_week_button, \
-            self.output_destination_button, self.transform_button = self.create_buttons()
+        self.next_week_button, self.current_week_button, self.output_destination_button, \
+            self.transform_button = self.create_buttons()
         self.next_week_path, self.current_week_path, self.output_destination_path = self.create_labels()
         self.place_components()
 
@@ -69,10 +69,10 @@ class App(CTk):
         if self.output_destination_path.get() == "" or self.output_destination_path.get() == "Output Destination" \
                 or self.next_week_path.get() == "" or self.next_week_path.get() == "Next Week" or \
                 self.current_week_path.get() == "" or self.current_week_path.get() == "Current Week":
-            self.second_rule_button.configure(state="disabled")
+            # self.second_rule_button.configure(state="disabled")
             self.transform_button.configure(state="disabled")
         else:
-            self.second_rule_button.configure(state="normal")
+            # self.second_rule_button.configure(state="normal")
             self.transform_button.configure(state="normal")
 
     def on_close(self) -> None:
@@ -132,7 +132,8 @@ class App(CTk):
             return "Courier", int(13)
 
     def transform(self):
-        self.show_info("Bu pencere kapandıktan sonra, ikinci kuralı uygulamanız için başka bir ekran gelecektir. Lütfen bekleyiniz.")
+        self.show_info(
+            "Bu pencere kapandıktan sonra, ikinci kuralı uygulamanız için başka bir ekran gelecektir. Lütfen bekleyiniz.")
         self.destroy()
 
     def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton, CTkButton]:
@@ -144,8 +145,8 @@ class App(CTk):
         Returns:
             A tuple with the next week, current week, output destination, and transform buttons.
         """
-        second_rule_button = CTkButton(self.sidebar_frame, command=self.get_shifts,
-                                       text="Shift Control Rule", font=("Arial", 12))
+        # second_rule_button = CTkButton(self.sidebar_frame, command=self.get_shifts,
+        #                                text="Shift Control Rule", font=("Arial", 12))
         next_week_button = CTkButton(self.sidebar_frame, command=self.browse_first_input_file,
                                      text="Next Week", font=("Arial", 12))
         current_week_button = CTkButton(self.sidebar_frame, command=self.browse_second_input_file,
@@ -154,7 +155,7 @@ class App(CTk):
                                               text="Output Destination", font=("Arial", 12))
         transform_button = CTkButton(self.sidebar_frame, command=self.transform,
                                      text="Transform", font=("Arial", 12))
-        return second_rule_button, next_week_button, current_week_button, \
+        return next_week_button, current_week_button, \
             output_destination_button, transform_button
 
     def create_labels(self) -> tuple[CTkEntry, CTkEntry, CTkEntry]:
@@ -182,8 +183,8 @@ class App(CTk):
         self.next_week_button.grid(row=1, column=0, padx=20, pady=10)
         self.current_week_button.grid(row=2, column=0, padx=20, pady=10)
         self.output_destination_button.grid(row=3, column=0, padx=20, pady=10)
-        self.second_rule_button.grid(row=4, column=0, padx=20, pady=10)
-        self.transform_button.grid(row=6, column=0, padx=20, pady=10)
+        # self.second_rule_button.grid(row=4, column=0, padx=20, pady=10)
+        self.transform_button.grid(row=4, column=0, padx=20, pady=10)
 
         self.next_week_path.grid(row=0, column=1, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.current_week_path.grid(row=1, column=1, padx=(20, 20), pady=(20, 20), sticky="nsew")
@@ -219,7 +220,7 @@ class App(CTk):
 
         # set the dimensions of the window
         w = 750  # width for the Tk root
-        h = 425  # height for the Tk root
+        h = 378  # height for the Tk root
 
         # get screen width and height
         ws = self.winfo_screenwidth()  # width of the screen
@@ -232,12 +233,12 @@ class App(CTk):
         # set the dimensions of the screen where the window will be displayed
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
-    def get_shifts(self):
-        if self.shift_window is None or not self.shift_window.winfo_exists():
-            self.shift_window = ShiftWindow(self, next_week_excel_path=self.next_week_path.get(),
-                                            current_week_excel_path=self.current_week_path.get())
-            self.shift_window.focus_force()
-            self.shift_window.grab_set()
+    # def get_shifts(self):
+    #     if self.shift_window is None or not self.shift_window.winfo_exists():
+    #         self.shift_window = ShiftWindow(self, next_week_excel_path=self.next_week_path.get(),
+    #                                         current_week_excel_path=self.current_week_path.get())
+    #         self.shift_window.focus_force()
+    #         self.shift_window.grab_set()
 
     def browse_first_input_file(self) -> None:
         """
