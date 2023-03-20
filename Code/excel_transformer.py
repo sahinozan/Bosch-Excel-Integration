@@ -44,7 +44,10 @@ try:
     third_rule(input_excel_path=output_excel_file)
     shift_by_one(output_excel_path=output_excel_file)
     remove_unnecessary_workday(output_excel_file_path=output_excel_file)
-    check_call(["python", f"{os.getcwd()}{os.sep}Code{os.sep}second_rule.py"])
+    if str(os.getcwd()).split(os.sep)[-1] == "Code":
+        check_call(["python", f"{os.getcwd()}{os.sep}second_rule.py"])
+    else:
+        check_call(["python", f"{os.getcwd()}{os.sep}Code{os.sep}second_rule.py"])
 except PermissionError:
     App.show_error("Formatting Failed!")
 finally:
