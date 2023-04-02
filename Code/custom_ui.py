@@ -230,13 +230,6 @@ class App(CTk):
         # set the dimensions of the screen where the window will be displayed
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
-    # def get_shifts(self):
-    #     if self.shift_window is None or not self.shift_window.winfo_exists():
-    #         self.shift_window = ShiftWindow(self, next_week_excel_path=self.next_week_path.get(),
-    #                                         current_week_excel_path=self.current_week_path.get())
-    #         self.shift_window.focus_force()
-    #         self.shift_window.grab_set()
-
     def browse_first_input_file(self) -> None:
         """
         Opens a file dialog box to select the next week's production plan Excel file. The file dialog box will only

@@ -2,7 +2,6 @@
 
 from helper import *
 from custom_ui import App
-from rules import third_rule, shift_by_one
 
 # read data source files
 next_week, current_week, pipes, types, output_excel_file, current_dir, next_dir = file_path_handler()
