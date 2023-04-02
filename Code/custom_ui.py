@@ -5,7 +5,6 @@ import sys
 from tkinter import messagebox, filedialog, Tk
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkFont, CTkOptionMenu, CTkEntry, set_appearance_mode, \
     set_default_color_theme
-from shift_ui import ShiftWindow
 
 
 class App(CTk):
@@ -133,10 +132,11 @@ class App(CTk):
 
     def transform(self):
         self.show_info(
-            "Bu pencere kapandıktan sonra, ikinci kuralı uygulamanız için başka bir ekran gelecektir. Lütfen bekleyiniz.")
+            "Bu pencere kapandıktan sonra, ikinci kuralı uygulamanız için başka bir ekran gelecektir. Lütfen "
+            "bekleyiniz.")
         self.destroy()
 
-    def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton, CTkButton]:
+    def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton]:
         """
         Creates the buttons in the UI. Input1 and input2 are the buttons that are used to select the Excel files for
         the next week's and current week's production plan. Output is the button that is used to select the output

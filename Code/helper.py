@@ -91,7 +91,7 @@ def file_path_handler() -> \
     # Validation will not be needed after the standalone executable
     if str(os.getcwd()).split(os.sep)[-1] == "Code":
         master_path = os.sep.join(str(os.getcwd()).split(os.sep)[:-1]) + \
-            f"{os.sep}Data{os.sep}Master Data.xlsx"
+                      f"{os.sep}Data{os.sep}Master Data.xlsx"
     else:
         master_path = os.getcwd() + f"{os.sep}Data{os.sep}Master Data.xlsx"
     try:

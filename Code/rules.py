@@ -43,10 +43,10 @@ def third_rule(input_excel_path):
             row_shifts.append(worksheet.cell(row=row, column=col2).value)
         shifts.append(row_shifts)
 
-    for k2 in range(len(shifts)):
-        for i2 in range(1, 24):
-            shifts[k2][i2 - 1] = shifts[k2][i2]
-            shifts[k2][i2] = None
+    for k in range(len(shifts)):
+        for i in range(1, 24):
+            shifts[k][i - 1] = shifts[k][i]
+            shifts[k][i] = None
 
     for row, lists in zip(matching_rows, shifts):
         for col, element in zip(range(4, 28), lists):
@@ -122,11 +122,11 @@ def first_rule(input_excel_path):
 
     shifts = []
 
-    for row2 in shifts:
-        row_vardiya2 = []
-        for col2 in range(13, 34):
-            row_vardiya2.append(worksheet.cell(row=row2, column=col2).value)
-        shifts.append(row_vardiya2)
+    for row in shifts:
+        row_shifts = []
+        for col in range(13, 34):
+            row_shifts.append(worksheet.cell(row=row, column=col).value)
+        shifts.append(row_shifts)
 
     for i in range(len(shifts)):
         for j in range(len(shifts[i])):

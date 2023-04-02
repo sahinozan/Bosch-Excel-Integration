@@ -21,7 +21,8 @@ class SecondRuleWindow(CTk):
         self.window_configuration()
         self.create_grid()
 
-    def find_output_path(self) -> str:
+    @staticmethod
+    def find_output_path() -> str:
         with open("output_path.txt", "r") as f:
             return f.read()
 
@@ -65,7 +66,7 @@ class SecondRuleWindow(CTk):
 
     def next_func(self) -> None:
         last_row = self.next_week_worksheet.max_row
-        matching_rows = [i for i in range(3, last_row+1)]
+        matching_rows = [i for i in range(3, last_row + 1)]
 
         shifts = []
         for row in matching_rows:
