@@ -367,6 +367,11 @@ def general_excel_formatter(file_path: str, sheet_name) -> None:
     ws1['B1'].fill = redFill
     ws1['B1'].font = Font(color="FFFFFF", bold=True, size=11)
 
+    for row in range(ws1.min_row, ws1.max_row + 1):
+        for col in range(ws1.min_column, ws1.max_column + 1):
+            if ws1.cell(row, col).value == 0:
+                ws1.cell(row, col).value = np.nan
+
     ws1.column_dimensions = dim_holder
     wb.save(file_path)
 
