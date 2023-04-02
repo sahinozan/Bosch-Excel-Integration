@@ -78,9 +78,6 @@ def file_path_handler() -> \
     current_source_file_name = current_source_dir.split("/")[-1]
     output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
 
-    with open("output_path.txt", "w") as f:
-        f.write(output_dir)
-
     try:
         current_source_file = pd.read_excel(current_source_dir)
         past_source_file = pd.read_excel(past_source_dir)

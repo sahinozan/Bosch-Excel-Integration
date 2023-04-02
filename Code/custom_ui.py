@@ -131,9 +131,6 @@ class App(CTk):
             return "Courier", int(13)
 
     def transform(self):
-        self.show_info(
-            "Bu pencere kapandıktan sonra, ikinci kuralı uygulamanız için başka bir ekran gelecektir. Lütfen "
-            "bekleyiniz.")
         self.destroy()
 
     def create_buttons(self) -> tuple[CTkButton, CTkButton, CTkButton, CTkButton]:
