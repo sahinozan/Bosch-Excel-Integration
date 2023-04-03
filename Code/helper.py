@@ -39,7 +39,7 @@ redFill = PatternFill(start_color='FFFF0000',
 
 
 def file_path_handler() -> \
-        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, str, str, str]:
+        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, str, str]:
     """
     Get the file paths from the UI, convert the files into dataframes.
 
@@ -74,13 +74,12 @@ def file_path_handler() -> \
     path_validation(paths)
 
     # create output directory name from the source file path
-    current_source_dir, past_source_dir, output_dir = paths["Source1"], paths["Source2"], paths["Output"]
-    current_source_file_name = current_source_dir.split("/")[-1]
-    output_dir = output_dir + os.sep + current_source_file_name.split(".")[0] + "_output.xlsx"
+    source_dir, output_dir = paths["Source"], paths["Output"]
+    source_file_name = source_dir.split("/")[-1]
+    output_dir = output_dir + os.sep + source_file_name.split(".")[0] + "_output.xlsx"
 
     try:
-        current_source_file = pd.read_excel(current_source_dir)
-        past_source_file = pd.read_excel(past_source_dir)
+        source_file = pd.read_excel(source_dir)
     except FileNotFoundError:
         App.show_error("File not found!")
         sys.exit(0)
@@ -98,7 +97,7 @@ def file_path_handler() -> \
         App.show_error("File not found!")
         sys.exit(0)
 
-    return current_source_file, past_source_file, pipes, types, output_dir, current_source_dir, past_source_dir
+    return source_file, pipes, types, output_dir, source_dir
 
 
 def path_validation(paths: dict) -> None:
@@ -108,29 +107,12 @@ def path_validation(paths: dict) -> None:
     Args:
         paths: A dictionary containing the paths of the Excel files and the output destination.
     """
-    if "Source1" not in paths.keys() or "Source2" not in paths.keys() or "Output" not in paths.keys():
+    if "Source" not in paths.keys() or "Output" not in paths.keys():
         sys.exit(1)
 
 
-def source_file_parser(n_week_df: pd.DataFrame, c_week_df: pd.DataFrame) \
-        -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Parse the source files and return the dataframes.
-
-    Args:
-        n_week_df: A dataframe of the next week's production plan
-        c_week_df: A dataframe of the current week's production plan
-
-    Returns:
-        A tuple which contains the parsed versions of both week's production plans
-    """
-    c_week_df = pd.concat([c_week_df.iloc[:, :12], c_week_df.iloc[:, 27: 33]], axis=1)
-    n_week_df = n_week_df.iloc[:, : 30]
-    return n_week_df, c_week_df
-
-
-def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd.DataFrame,
-                            is_next_week=False) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd.DataFrame) -> \
+        pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Filters the rows with missing values and eliminates the unnecessary columns in the main dataframe.
     Then, it merges the main dataframe with the pipes and types dataframes.
@@ -140,20 +122,21 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
         raw_df: Main dataframe that contains the raw data (e.g. the current week's production plan)
         pipes: A dataframe that contains the amount of pipes for each device
         types: A dataframe of the pipe types (e.g. hydraulic, spare, etc.)
-        is_next_week: A boolean value that indicates whether the dataframe is for the next week or not
 
     Returns:
         A dataframe with multi-level columns
     """
     # get the shift dates and format them (e.g. 27 Dec 2022)
-    shift_date = raw_df.iloc[4:6, 12: 37: 3].copy()
+    date_start_index = str(raw_df.columns[raw_df.isin(['Pazartesi']).any()][0]).split(' ')[1]
+
+    shift_date = raw_df.iloc[4:6, int(date_start_index): 31: 3].copy()
     shift_date.iloc[0, :] = shift_date.iloc[0, :].apply(lambda x: x.strftime("%d %b %Y"))
     shift_date = shift_date.apply(lambda x: f"{x.iloc[1]} - {x.iloc[0]}", axis=0)
     shift_dates = list(shift_date)
 
     # TTNr, Hat, Cihaz Aile, and work days columns
     indices = raw_df.iloc[:, [0, 7, 8, 11]].reset_index()
-    work_days = raw_df.iloc[:, 12: 36].reset_index()
+    work_days = raw_df.iloc[:, 12: 33].reset_index()
     sheet = pd.concat([indices, work_days], axis=1).iloc[2:, :]
 
     # drop the rows with NaN values in the TTNr column
@@ -162,11 +145,6 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
 
     sheet = sheet[sheet.loc[:, "MOE1 Üretim Sıralaması"].apply(
         lambda x: (len([j for j in x if j.isnumeric()]) > 1 and len(x) >= 3))]
-
-    deleted_df = sheet[
-        sheet.iloc[:, 6].apply(lambda x: (type(x) == datetime.datetime) or (type(x) == str))]
-
-    not_formatted_df = sheet.copy()
 
     # get only the numeric values
     sheet = sheet[sheet.iloc[:, 6].apply(lambda x: (type(x) != datetime.datetime) and (type(x) != str))]
@@ -181,6 +159,7 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
     shifts = [1, 2, 3]
     final_indices = [" - ".join([i, str(j)]) for i in shift_dates for j in shifts]
     initial_indices.extend(final_indices)
+
     sheet = sheet.set_axis(initial_indices, axis=1)
 
     # convert to string to for the merge operation
@@ -232,10 +211,7 @@ def general_excel_converter(raw_df: pd.DataFrame, pipes: pd.DataFrame, types: pd
     # convert work days columns to numeric values
     df[df.columns[4]] = df[df.columns[4]].apply(pd.to_numeric, errors='coerce')
 
-    if is_next_week:
-        return df, not_formatted_df, deleted_df
-    else:
-        return df
+    return df
 
 
 def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFrame:
@@ -250,7 +226,6 @@ def excel_pivoting(df_initial: pd.DataFrame, types: pd.DataFrame) -> pd.DataFram
         A dataframe that contains the pivoted values
     """
     # create the dataframe for the Excel pivoting (multi-level columns)
-    # df_initial.index = df_initial.index.str.split(' ').str[1]
     df_pivoted = df_initial.sort_index(key=lambda x: (x.to_series().str[4:].astype("int64")))
     df_pivoted = df_pivoted.drop(columns=[('', 'Cihaz TTNr'), ('', 'Cihaz Aile'), ('', 'Tip')])
 
@@ -287,46 +262,6 @@ def excel_format_validate(list_of_dfs: list[pd.DataFrame]) -> None:
     pass
 
 
-def remove_unnecessary_workday(output_excel_file_path) -> None:
-    """
-    Removes the next week's saturday from the output Excel file.
-
-    Args:
-        output_excel_file_path: The path of the output Excel file
-    """
-    wb = openpyxl.load_workbook(output_excel_file_path)
-
-    for sheet in wb.sheetnames:
-        ws = wb[sheet]
-        if sheet in ["Genel", "Borusuz"]:
-            ws.delete_cols(27, 3)
-            ws.auto_filter.ref = "A2:Z2"
-        else:
-            ws.delete_cols(25, 3)
-            ws.auto_filter.ref = "A2:X2"
-
-    wb.save(output_excel_file_path)
-
-
-def detect_devices_without_pipes(source_df: pd.DataFrame, output_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Detects the devices that do not have any pipe information in the pipes Excel file.
-
-    Args:
-        source_df: Initial version of the main Excel file (before formatting)
-        output_df: Final version of the main Excel file (after formatting)
-
-    Returns:
-        A dataframe that contains the devices without pipes
-    """
-    source_devices = set(source_df["MOE1 Üretim Sıralaması"].astype(str).unique())
-    output_devices = set(output_df[("", "Cihaz TTNr")].astype(str).unique())
-    non_existing_devices = list(source_devices - output_devices)
-    df_empty = output_df[0:0].copy()
-    df_empty[("", "Cihaz TTNr")] = non_existing_devices
-    return df_empty
-
-
 def general_excel_formatter(file_path: str, sheet_name) -> None:
     """
     Does general formatting such as column width, row height, and coloring.
@@ -358,7 +293,7 @@ def general_excel_formatter(file_path: str, sheet_name) -> None:
     dim_holder['E'] = ColumnDimension(ws1, min=5, max=5, width=18)
 
     # add filter
-    ws1.auto_filter.ref = "A2:AC2"
+    ws1.auto_filter.ref = "A2:Z2"
 
     # highlight the version and date cells
     ws1['A1'].fill = redFill
@@ -404,7 +339,7 @@ def pivot_excel_formatter(file_path: str) -> None:
     dim_holder['C'] = ColumnDimension(ws2, min=3, max=3, width=18)
 
     # add filter
-    ws2.auto_filter.ref = "A2:AA2"
+    ws2.auto_filter.ref = "A2:X2"
 
     # highlight the version and date cells
     ws2['A1'].fill = redFill
@@ -429,6 +364,9 @@ def excel_version(file_path: str, file: pd.DataFrame) -> None:
 
     version = file.iloc[[3, 4], 7]
     update_date = file.iloc[[3, 4], 8]
+
+    print(version.iloc[:1])
+    # print(update_date.iloc[:])
 
     version_value = version.iloc[0] + " - " + version.iloc[1]
     update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
@@ -462,8 +400,6 @@ def check_and_create_sheet(output_excel_file: str) -> None:
                 wb.create_sheet("Genel")
             if "Pivot" not in wb.sheetnames:
                 wb.create_sheet("Pivot")
-            if "Borusuz" not in wb.sheetnames:
-                wb.create_sheet("Borusuz")
 
             wb.save(output_excel_file)
     except PermissionError:
@@ -475,8 +411,7 @@ def check_and_create_sheet(output_excel_file: str) -> None:
 
 
 def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
-                   non_existing: pd.DataFrame, main_sheet_name="Genel",
-                   pivot_sheet_name="Pivot", non_existing_sheet_name="Borusuz") -> None:
+                   main_sheet_name="Genel", pivot_sheet_name="Pivot") -> None:
     """
     Writes the dataframes to the three separate sheets in the Excel file.
 
@@ -484,16 +419,13 @@ def write_to_excel(output_excel_file, main: pd.DataFrame, pivot: pd.DataFrame,
         output_excel_file: The path of the formatted Excel file
         main: The dataframe that will be written to the general sheet (non-pivoted & formatted)
         pivot: The dataframe that will be written to the pivoted sheet (pivoted & formatted)
-        non_existing: The dataframe that will be written to the non-existing sheet
         main_sheet_name: The name of the general sheet
         pivot_sheet_name: The name of the pivoted sheet
-        non_existing_sheet_name: The name of the non-existing sheet
     """
     try:
         with pd.ExcelWriter(output_excel_file, mode="w") as writer:
             main.to_excel(writer, main_sheet_name)
             pivot.to_excel(writer, pivot_sheet_name)
-            non_existing.to_excel(writer, non_existing_sheet_name)
     except PermissionError:
         App.show_error("Conversion Failed!")
         App.show_error("Permission Error!")
