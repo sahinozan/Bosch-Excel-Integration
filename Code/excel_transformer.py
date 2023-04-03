@@ -1,18 +1,6 @@
 # Author: Ozan Şahin
-import glob
 from helper import *
 from custom_ui import App
-from customtkinter import CTk, filedialog
-
-# def directory_selector():
-#     root = CTk()
-#     file_path = filedialog.askdirectory(parent=root, initialdir="/", title='Please select a directory')
-#     root.destroy()
-#     return file_path
-#
-#
-# selected_dir = directory_selector()
-# files_in_dir = glob.glob(pathname=selected_dir + "/*.xlsx")
 
 # read data source files
 source_file, pipes, types, output_excel_file, source_dir = file_path_handler()
