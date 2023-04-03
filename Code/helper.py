@@ -365,9 +365,6 @@ def excel_version(file_path: str, file: pd.DataFrame) -> None:
     version = file.iloc[[3, 4], 7]
     update_date = file.iloc[[3, 4], 8]
 
-    print(version.iloc[:1])
-    # print(update_date.iloc[:])
-
     version_value = version.iloc[0] + " - " + version.iloc[1]
     update_date_value = update_date.iloc[0] + ":  " + update_date.iloc[1]
 
