@@ -22,6 +22,7 @@ write_to_excel(output_excel_file=output_excel_file, main=source_df, pivot=df_piv
 
 # format the Excel files
 try:
+    total_quantity_per_pipe(output_excel_file_path=output_excel_file)
     pivot_excel_formatter(file_path=output_excel_file)
     general_excel_formatter(file_path=output_excel_file, sheet_name="Genel")
     excel_version(file_path=output_excel_file, file=source_file)

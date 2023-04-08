@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import openpyxl
 from openpyxl.utils import get_column_letter
-from openpyxl.styles import Alignment
+from openpyxl.styles import Alignment, Border, Side
 from openpyxl.styles import PatternFill, Font
 from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder
 from importlib.util import find_spec
@@ -98,6 +98,50 @@ def file_path_handler() -> \
         sys.exit(0)
 
     return source_file, pipes, types, output_dir, source_dir
+
+
+def total_quantity_per_pipe(output_excel_file_path) -> None:
+    """
+    Sum the quantity of each shift for each pipe and add it to the add to an extra column.
+
+    Args:
+        output_excel_file_path: The path of the output Excel file
+    """
+    wb = openpyxl.load_workbook(output_excel_file_path)
+
+    for sheet in wb.sheetnames:
+        ws = wb[sheet]
+
+        if sheet == "Genel":
+            ws.insert_cols(27, 1)
+            ws["AA1"] = "Toplam"
+            ws["AA1"].border = Border(left=Side(border_style="thin", color='FF000000'),
+                                      right=Side(border_style="thin", color='FF000000'),
+                                      top=Side(border_style="thin", color='FF000000'),
+                                      bottom=Side(border_style="thin", color='FF000000'))
+            ws["AA2"] = "X"
+            ws["AA2"].border = Border(left=Side(border_style="thin", color='FF000000'),
+                                      right=Side(border_style="thin", color='FF000000'),
+                                      top=Side(border_style="thin", color='FF000000'),
+                                      bottom=Side(border_style="thin", color='FF000000'))
+            for i in range(3, ws.max_row):
+                ws[f"AA{i + 1}"] = f"=SUM(F{i}:Z{i})"
+        elif sheet == "Pivot":
+            ws.insert_cols(25, 1)
+            ws["Y1"] = "Toplam"
+            ws["Y1"].border = Border(left=Side(border_style="thin", color='FF000000'),
+                                     right=Side(border_style="thin", color='FF000000'),
+                                     top=Side(border_style="thin", color='FF000000'),
+                                     bottom=Side(border_style="thin", color='FF000000'))
+            ws["Y2"] = "X"
+            ws["Y2"].border = Border(left=Side(border_style="thin", color='FF000000'),
+                                     right=Side(border_style="thin", color='FF000000'),
+                                     top=Side(border_style="thin", color='FF000000'),
+                                     bottom=Side(border_style="thin", color='FF000000'))
+            for i in range(3, ws.max_row):
+                ws[f"Y{i + 1}"] = f"=SUM(F{i}:X{i})"
+
+    wb.save(output_excel_file_path)
 
 
 def path_validation(paths: dict) -> None:
@@ -293,7 +337,7 @@ def general_excel_formatter(file_path: str, sheet_name) -> None:
     dim_holder['E'] = ColumnDimension(ws1, min=5, max=5, width=18)
 
     # add filter
-    ws1.auto_filter.ref = "A2:Z2"
+    ws1.auto_filter.ref = "A2:AA2"
 
     # highlight the version and date cells
     ws1['A1'].fill = redFill
@@ -301,6 +345,10 @@ def general_excel_formatter(file_path: str, sheet_name) -> None:
 
     ws1['B1'].fill = redFill
     ws1['B1'].font = Font(color="FFFFFF", bold=True, size=11)
+
+    ws1['AA1'].fill = redFill
+    ws1['AA1'].font = Font(color="FFFFFF", bold=True, size=11)
+    ws1['AA2'].font = Font(color="000000", bold=True, size=11)
 
     for row in range(ws1.min_row, ws1.max_row + 1):
         for col in range(ws1.min_column, ws1.max_column + 1):
@@ -339,7 +387,7 @@ def pivot_excel_formatter(file_path: str) -> None:
     dim_holder['C'] = ColumnDimension(ws2, min=3, max=3, width=18)
 
     # add filter
-    ws2.auto_filter.ref = "A2:X2"
+    ws2.auto_filter.ref = "A2:Y2"
 
     # highlight the version and date cells
     ws2['A1'].fill = redFill
@@ -347,6 +395,10 @@ def pivot_excel_formatter(file_path: str) -> None:
 
     ws2['B1'].fill = redFill
     ws2['B1'].font = Font(color="FFFFFF", bold=True, size=11)
+
+    ws2['Y1'].fill = redFill
+    ws2['Y1'].font = Font(color="FFFFFF", bold=True, size=11)
+    ws2['Y2'].font = Font(color="000000", bold=True, size=11)
 
     ws2.column_dimensions = dim_holder
     wb.save(file_path)
