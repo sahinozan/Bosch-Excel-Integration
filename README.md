@@ -1,4 +1,4 @@
-# Bosch-Senior-Project
+# Bosch Senior Project
 
 Automation for the conversion from device production plan to pipe production plan.
 
