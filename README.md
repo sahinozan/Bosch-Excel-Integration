@@ -1,40 +1,35 @@
-# Bosch-Excel-Integration
+# Bosch Senior Project — Excel Integration
 
-A public demonstration of converting product schedules and a bill of materials into component demand in Excel. All committed examples are fictional and generated from scratch. The repository name is retained as a historical project label; the examples do not describe a company's operations.
+This repository contains the Excel-processing work from a bachelor's senior project completed as a team in collaboration with Bosch. The aim was to turn production-planning spreadsheets into component requirements and reduce repetitive spreadsheet work.
 
-**Sanitized public demo:** This project has been adapted for public sharing through synthetic-data replacement and generalization of company-specific behavior. [Read what changed and why](#sanitization-for-public-sharing).
+The original implementation was tailored to the company's data and workbook formats. This repository is shared as an academic portfolio project, with a simplified example that can be explored independently.
 
-## Run
+## What the project covered
 
-Use Python 3.11 or newer in a virtual environment:
+- Reading production schedules and product-to-component mappings.
+- Calculating component quantities and organizing them by production line and shift.
+- Exporting formatted Excel reports and providing a desktop interface for selecting files.
+
+**Technologies:** Python, pandas, NumPy, openpyxl, and a desktop GUI.
+
+## Sanitization for public sharing
+
+The public version uses independently generated synthetic data. Original business data, company-specific workbook layouts, and operational rules have been replaced with fictional examples and generic logic. Personal paths, identifying document metadata, and the original screenshot manual are omitted from this version.
+
+The current demo reads a CSV schedule and bill of materials, then exports an Excel workbook. It does not reproduce the original corporate workflow. The examples can be regenerated with `python generate_demo.py`; the generator does not read original records or use their statistics.
+
+## Try the example
+
+With Python 3.11 or newer, run these commands from the repository directory, preferably in a virtual environment:
 
 ```sh
 python -m pip install -r requirements.txt
 python Code/excel_transformer.py
 ```
 
-This creates `outputs/plan.xlsx`, with **Detail**, **Totals**, and **Unmapped** sheets. The optional desktop interface is `python Code/custom_ui.py`; it requires a Python installation with Tk support.
+The result is `outputs/plan.xlsx`, containing detail, aggregated totals, and any products without a component mapping. The optional desktop interface is available through `python Code/custom_ui.py` and requires Tk support.
 
-The example CSVs are already included. Recreate them with `python generate_demo.py`. The generator reads no external files and uses a fixed random seed, invented identifiers, and an arbitrary calendar week.
+## Related senior-project repositories
 
-## Input format
-
-`schedule.csv`: `date`, `line`, `shift`, `product_id`, `quantity`.
-
-`bill_of_materials.csv`: `product_id`, `component_id`, `units_per_product`.
-
-The converter multiplies scheduled quantities by component usage and aggregates by date, line, shift, and component. Unmapped products appear separately instead of being silently dropped. Negative quantities, missing values, and duplicate mappings are rejected.
-
-```sh
-python Code/excel_transformer.py --input-dir examples --output outputs/plan.xlsx
-```
-
-## Sanitization for public sharing
-
-This edition demonstrates the project's technical ideas while excluding operational records and personal information. The sample data is generated from scratch by `generate_demo.py`, without reading original records or deriving values from their statistics. Identifiers, quantities, dates, and relationships in the examples are invented.
-
-The organization-specific workbook formats, shift policies, department labels, original master data, and screenshot manual have been replaced with this generic example. This edition does **not** support the original corporate workbook format or reproduce its operational rules. Generated workbooks and local inputs are excluded from Git.
-
-Personal filesystem paths and identifying document metadata have been removed from the published files. The public demo starts with a fresh initial commit containing the sanitized edition. These changes are described as **sanitization and synthetic-data replacement**; the sample workbooks and results should be understood as educational examples.
-
-Run the checks with `python -m pip install pytest` and `python -m pytest tests`.
+- [Forecasting](https://github.com/sahinozan/Bosch-Forecasting) — time-series analysis and forecasting experiments.
+- [Reinforcement Learning](https://github.com/sahinozan/Bosch-Reinforcement-Learning) — a custom inventory environment and reinforcement learning experiments.
